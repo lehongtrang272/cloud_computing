@@ -10,7 +10,8 @@ var user ='';
 			socket.on('onLoginSuccess', function(msg){
 				user=msg.user; //SetUsername
 				$('.loginDiv').css("display","none");
-				$('.chatDiv').css("display","block");
+                $('.chatDiv').css("display","block");
+                $('#logo').removeClass("logoLogIn").addClass("hidden");
 				appendChatMessage( ">>"+msg.message+" "+ user+"<<","serverMessage");
 				$('#m').focus();
 				//$('#messages').append($('<li>').append($('<p class="serverMessage">').text(">>"+msg.message+" "+ user+"<<")));

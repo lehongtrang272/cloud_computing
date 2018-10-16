@@ -3,8 +3,41 @@
     padding: 0; 
     box-sizing: border-box; 
 }   
-body { 
-    font: 13px Avenue, Arial; 
+body, input { 
+    font-family: Avenir, Arial !important;
+    font-size: 14px;
+}
+label {
+    color: #2D2C86;
+    font-size: 18px;
+    font-weight: bold;
+}
+#setUsername button {
+    padding: 10px;
+    background: #2D2C86;
+    color: white;
+    font-size: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+    
+}
+#setUsername {
+    position: absolute;
+    width: 50vw;
+    height: 100px;
+    margin-top: -100px;
+    margin-left: -500px;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+}
+#setUsername input {
+    height: 40px;
+    width: 30vw;
+    border: none;
+    clear:both;
+    border-radius: 12px;
+    margin: 10px;
 }
 .inputForm { 
     background: #000; 
@@ -25,18 +58,40 @@ form .inputButton {
     border: none; 
     padding: 10px; 
 }
+.logoLogIn{
+    float: right;
+    display: block; 
+    clear:both ; 
+    margin: 20px; 
+    height:30px; 
+    position: fixed;
+}
+.hidden {
+    display: none;
+}
+.container {
+    display: flex;
+    justify-content: center;
+}
+.loginDiv {
+    margin-top: 20vh;
+    width: 80vw;
+    height: 60vh;
+    background-image: linear-gradient(-43deg, rgba(120,187,221,0.54) 0%, rgba(255,255,255,0.18) 100%);
+}
 #messages { 
     list-style-type: none; 
     margin: 0; 
     padding: 0; 
 }
 #messages li { 
-    padding: 5px 10px; 
+    padding: 10px 15px; 
 }
       
 #messages li:nth-child(odd) { 
     background: #eee; 
 }
 .serverMessage {
-    color:green;
+    color:rgb(99, 98, 98);
+    font-style: italic
 }
