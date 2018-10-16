@@ -29,10 +29,15 @@ io.on('connection', function(socket){
 
 	
   socket.on('chat message', function(msg){
-	 timeStamp = getTimeStamp();
-    io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": timeStamp});
-	MessageList.push({"user": msg.user, "message": msg.message, "timeStamp": timeStamp});
+	if(false){
+		socket.emit('UserList', UserList);
+	}
+	else{
+	timeStamp = getTimeStamp();
+    io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp()});
+	MessageList.push({"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp()});
 	console.log(MessageList[0].user);
+	}
   });
   
   socket.on('disconnect', function () {
