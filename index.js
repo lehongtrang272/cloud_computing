@@ -1,10 +1,16 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var path = require('path');
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/src/index.html');
 });
+
+//Routing to src folder
+app.use(express.static(path.join(__dirname, 'src')));
+
 var UserList = [];
 var MessageList=[];
 io.on('connection', function(socket){
