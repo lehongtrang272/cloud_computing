@@ -9,10 +9,10 @@ var user ='';
 			});   
 			socket.on('onLoginSuccess', function(msg){
 				user=msg.user; //SetUsername
-				$('.loginDiv').css("display","none");
-                $('.chatDiv').css("display","block");
+				$('.loginDiv').addClass("hidden");
+                $('.chatDiv').removeClass("hidden").show();
                 $('#logo').removeClass("logoLogIn").addClass("hidden");
-				appendChatMessage( ">>"+msg.message+" "+ user+"<<","serverMessage");
+				appendChatMessage( null, "server", msg.message+" "+ user,"serverMessage");
 				$('#m').focus();
 				//$('#messages').append($('<li>').append($('<p class="serverMessage">').text(">>"+msg.message+" "+ user+"<<")));
 			});
@@ -23,23 +23,32 @@ var user ='';
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
-		    socket.emit('chat message',  {"message":$('#m').val(), "user":user});
-			$('#m').val('');
-			$('#m').focus();
+				if($('#m').val()=="/list"){
+					//placeholder for list function
+					window.open("", "", "width=400,height=500");
+				}else{
+					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
+				}
+				$('#m').val('');
+				$('#m').focus();
+			
             return false;
             });
             socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg.timeStamp+" "+msg.user+": "+msg.message));
-			
-			socket.on('UserList', function(msg){
+				appendChatMessage(msg.timeStamp,msg.user,msg.message, null);
+				socket.on('UserList', function(msg){
 				console.log(msg);
-			});
+				});
 			
-    });
+    		});
         });
    
-   function appendChatMessage(message, type){
-		className = type;
-		console.log(message);
-		$('#messages').append($('<li class="'+className+'">').text(message));
+   function appendChatMessage(timeStamp, sender, message, type){
+		if(sender=="server") {
+			className = type;
+			console.log(message);
+			$('#messages').append($('<li class="'+className+'">').text(message));
+		}else {
+			$('#messages').append($('<li>').text(timeStamp + " " + sender + ": " + message));
+		}
    }

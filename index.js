@@ -25,7 +25,7 @@ io.on('connection', function(socket){
 			console.log(MessageList[message]);
 			socket.emit('chat message', MessageList[message]);
 		}
-			socket.emit('onLoginSuccess', {"message": 'welcome to the chat', "user": newUser});
+			socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 			//broadcast message to all other users
 			socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "message": newUser+" connected"});
 		}else{
