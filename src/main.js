@@ -24,8 +24,8 @@ var user ='';
 			//Handle chat messages
             $('#chatForm').submit(function(){
 				if($('#m').val()=="/list"){
-					//placeholder for list function
-					window.open("", "", "width=400,height=500");
+					$(".modal").removeClass("hidden").show()
+					$(".modal-body").append($('<li>').text("Place holder for user list"))
 				}else{
 					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
 				}
