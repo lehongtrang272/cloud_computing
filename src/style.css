@@ -58,7 +58,7 @@ label {
 }
 /*chat div*/
 .inputForm { 
-    background: #000; 
+    background: #fff; 
     padding: 3px; 
     position: fixed; 
     bottom: 0; 
@@ -72,9 +72,12 @@ form .inputText {
 }
 form .inputButton { 
     width: 9%; 
-    background: rgb(130, 224, 255); 
     border: none; 
     padding: 10px; 
+    background: #2D2C86;
+    color: white;
+    font-size: 15px;
+    border-radius: 12px;
 }
 
 .hidden {
@@ -100,4 +103,27 @@ form .inputButton {
 .serverMessage {
     color:rgb(99, 98, 98);
     font-style: italic
+}
+.userList {
+    width: 50vw;
+    height: 50vh;
+    overflow: auto;
+    top: 20px !important;
+    position: absolute !important;
+    justify-content: center;
+    z-index: 1000 !important;
+}
+.blurBackground {
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(5px);
+    background-color: gray;
+    opacity: 0.5;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    z-index: 1 !important;
+    position: absolute;
 }

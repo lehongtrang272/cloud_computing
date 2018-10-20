@@ -24,7 +24,8 @@ var user ='';
 			//Handle chat messages
             $('#chatForm').submit(function(){
 				if($('#m').val()=="/list"){
-					$(".modal").removeClass("hidden").show()
+					$(".modal").show();
+					$(".blurBackground").show();
 					$(".modal-body").append($('<li>').text("Place holder for user list"))
 				}else{
 					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
@@ -40,9 +41,15 @@ var user ='';
 				console.log(msg);
 				});
 			
-    		});
+			});
+			$("#closeButton").on('click', function(){
+				$(".userList").hide();
+				$(".blurBackground").hide();
+			})
         });
-   
+   function logOut(){
+	   //placeHolder for LogOut
+   }
    function appendChatMessage(timeStamp, sender, message, type){
 		if(sender=="server") {
 			className = type;
