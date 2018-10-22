@@ -24,9 +24,18 @@ var user ='';
 			//Handle chat messages
             $('#chatForm').submit(function(){
 				if($('#m').val()=="/list"){
+					socket.on('get users',function(data){
+						var html='';
+
+						for (i=0; i< data.lenght;i++){
+							$(".modal-body").append($('<li>').text(data[i]))
+							//html += '<li class="list-group-item">'+data[i]+'</li>';
+						}
+						$users.html(html);
+					})
 					$(".modal").show();
 					$(".blurBackground").show();
-					$(".modal-body").append($('<li>').text("Place holder for user list"))
+					//$(".modal-body").append($('<li>').text("Place holder for user list"))
 				}else{
 					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
 				}

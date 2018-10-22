@@ -21,8 +21,10 @@ io.on('connection', function(socket){
 	socket.on('onLogin', function(msg){
 		newUser = msg.user;
 		socket.user =newUser;
+		socket.username=msg;
 		if(UserList.indexOf(newUser)<0){
 			UserList.push(newUser);
+			updateUsernames();
 		//message back to the User
 		for(message in MessageList){
 			console.log(MessageList[message]);
@@ -33,6 +35,10 @@ io.on('connection', function(socket){
 			socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "message": newUser+" connected"});
 		}else{
 			socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already taken'});
+		}
+
+		function updateUsernames(){
+			io.sockets.emit('get users',UserList)
 		}
   }); 
 
@@ -58,6 +64,8 @@ io.on('connection', function(socket){
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
+
+
 
 //Returns the current Timestampt as String
 function getTimeStamp(){
