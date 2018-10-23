@@ -21,38 +21,30 @@
 		</div>
 	<div style="display:none"  class="chatDiv hidden">
 		<div class="row">
-			<div class="col-md-4">
+			<div class="col-md-3">
 						<div class="well">
-							<div style="height: 60px; background-color: #2D2C86">&nbsp</div>
-							<h3>Online Users</h3>
+							<div class="headerBar"><h5>Online Users</h5></div>
 							<div id="users"></div>
 						</div>
 			</div>
-			<div class="col-md-8"> 
+			<div class="col-md-9"> 
 				
 					<div><button style="float:right; margin: 5px; clear:both" class="btn" onclick="logOut()">Logout</button></div>	
-					<div style="height: 60px; background-color: #2D2C86">&nbsp</div>
-					<div><ul id="messages"></ul>
+					<div class="headerBar"><h5 >Chat room </h5></div>
+					<div>
+						<div class="messageList"><ul id="messages"></ul></div>
 						<form id="chatForm" class="inputForm" action="">
-						<input class="inputText" id="m" autocomplete="off" /><button class="btn-primary inputButton">Send</button>
+						<input class="inputText" id="m" autocomplete="off" />
+						<div class="btn-group">
+						<button class="btn btn-primary inputButton">Send</button>
+						<button class="btn btn-info"><img src="asset/attachment.png" height="20px" alt="Multimedia attachment"></button>
+						</div>
 						</form>
 					</div>
 			</div>
 		</div>
 	</div>
 		
-	<div class="modal container userList" style="display:none;">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">List of online user</h5>
-					</div>
-					<div class="modal-body" id="users"></div>
-					<div class="modal-footer">
-						<button id="closeButton" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-			<div class="blurBackground" style="display: none"></div> 
 		
 	<script src="/socket.io/socket.io.js"></script>
   <script src="/main.js"></script>

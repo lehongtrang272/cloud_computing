@@ -8,6 +8,9 @@ body, input {
     font-family: Avenir, Arial !important;
     font-size: 14px;
 }
+h5 {
+    padding: 20px;
+}
 label {
     color: #2D2C86;
     font-size: 18px;
@@ -62,22 +65,34 @@ label {
     padding: 3px; 
     position: fixed; 
     bottom: 0; 
-    width: 100%; 
+    width: 90%; 
 }
 form .inputText { 
-    border: 0; 
+    border: 1px solid rgb(118, 188, 211); 
     padding: 10px; 
-    width: 90%; 
+    width: 72%; 
     margin-right: .5%; 
+    display: inline-block;
 }
 form .inputButton { 
-    width: 9%; 
+    display: inline-block;
     border: none; 
-    padding: 10px; 
     background: #2D2C86;
     color: white;
     font-size: 15px;
-    border-radius: 12px;
+    padding: 10px; 
+}
+.btn-group {
+    width: 12%;
+    display: inline-block;
+}
+.btn-group .btn {
+    border-radius: 5px !important;
+    margin: 2px;
+    float: left;
+}
+.btn-info {
+    padding: 8px;
 }
 
 .hidden {
@@ -127,6 +142,19 @@ form .inputButton {
 	background:white;
 	border:none;
 	color:green;
+}
+.col-md-9, .col-md-3 {
+    padding: 5px !important;
+}
+.messageList {
+    overflow: auto;
+    max-height: 79vh;
+}
+.headerBar{
+    height: 60px; 
+    background-color: #2D2C86; 
+    color: white; 
+    text-align: center
 }
 .userList {
     width: 50vw;
