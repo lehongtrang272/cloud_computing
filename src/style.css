@@ -104,6 +104,30 @@ form .inputButton {
     color:rgb(99, 98, 98);
     font-style: italic
 }
+
+.privateMessage{
+	background: green !important;
+}
+
+.privateOwnMessage{
+	background: green !important;
+	text-align: right !important;
+}
+
+.ownMessage{
+	background:red !important;
+	text-align: right !important;
+}
+
+.oldMessage{
+	background: yellow !important;
+}
+
+.onlineUser{
+	background:white;
+	border:none;
+	color:green;
+}
 .userList {
     width: 50vw;
     height: 50vh;

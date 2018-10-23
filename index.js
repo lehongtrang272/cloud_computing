@@ -19,6 +19,7 @@ var MessageList=[];
 var Connections=[];
 io.on('connection', function(socket){
 	
+	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', function(msg){
 		newUser = msg.user;
 		socket.user =newUser;
@@ -34,7 +35,7 @@ io.on('connection', function(socket){
 		}
 			socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 			//broadcast message to all other users
-			socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "message": newUser+" connected"});
+			socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
 		}else{
 			socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already taken'});
 		}
@@ -42,45 +43,54 @@ io.on('connection', function(socket){
 		
   }); 
 
+  //Send onlineUsers to all Clients
   function updateUsernames(){
 	io.sockets.emit('get userlist',{"userlist":UserList})
 }
 	
+	//Send a chat Message to all Clients and save the Message in an Array
   socket.on('chat message', function(msg){
-	if(false){
-		socket.emit('UserList', UserList);
-	}
-	else{
 	timeStamp = getTimeStamp();
-    io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp()});
-	MessageList.push({"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp()});
+    io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "chatMessage"});
+	MessageList.push({"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "oldMessage"});
 	console.log(MessageList[0].user);
-	}
+	
   });
 
+  //obsolete, userlist request of one client with /list
   socket.on('get userlist', function(data){
 	  console.log("getUserList");
 	socket.emit('get userlist',{"userlist":UserList});
   });
 
+  //Handle private message, sends one message back and one to the receiver
   socket.on('private message',function(data){
 	  console.log("private Message");
-	  
+	  var userExists = false;
+	  var toSocket;
 	  for (i=0; i<Connections.length;i++){
 		   console.log(Connections[i].user+"connection.user");
 		   console.log(data.user+"data.user");
 		  if (data.user==Connections[i].user){
-				console.log(Connections[i]+data.message+socket.user);
-			    socket.emit('private message',{"message":data.message, "user":socket.user,"success":1,"timestamp":getTimeStamp()});
-			    Connections[i].emit('private message',{"message":data.message, "user":socket.user,"success":1,"timestamp":getTimeStamp()});
+			  toSocket = Connections[i];
+				userExists = true
 		  }
 	  }
+	  if(userExists){
+		  console.log(Connections[i]+data.message+socket.user);
+		socket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()});
+		toSocket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()});
+	  }
+	  else{
+		  socket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":0,"timestamp":getTimeStamp()});
+	  }
   });
-  
+  //on disconnect the user is deleted from the userlist and the socketlist and the online Users get the updatet userlist
   socket.on('disconnect', function () {
 	  UserList.splice( UserList.indexOf(socket.user), 1 );
+	  Connections.splice( UserList.indexOf(socket), 1 );
 	  updateUsernames();
-	socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "message": socket.user+" disconnected"});
+	socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
 });
 
