@@ -23,18 +23,23 @@ var user ='';
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
-				if($('#m').val()=="/list"){
-					socket.on('get users',function(data){
-						var html='';
+				var message = $('#m').val();
+				if($('#m').val().charAt(0)=="@"){
+					var privateUser =[];
+					var i = $('#m').val().indexOf(' ');
+					var splits = [message.slice(0,i), message.slice(i+1)];
+					privateUser= splits;
+					console.log(privateUser);
+					
+					if(privateUser.length>1){
+						socket.emit('private message',{"user": privateUser[0].substr(1), "message": privateUser[1]});
+						console.log(privateUser[0].substr(1));
+					}
+					
 
-						for (i=0; i< data.lenght;i++){
-							$(".modal-body").append($('<li>').text(data[i]))
-							//html += '<li class="list-group-item">'+data[i]+'</li>';
-						}
-						$users.html(html);
-					})
-					$(".modal").show();
-					$(".blurBackground").show();
+					
+				}else if($('#m').val()=="/list"){
+					socket.emit('get userlist');
 					//$(".modal-body").append($('<li>').text("Place holder for user list"))
 				}else{
 					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
@@ -51,11 +56,33 @@ var user ='';
 				});
 			
 			});
-			$("#closeButton").on('click', function(){
-				$(".userList").hide();
-				$(".blurBackground").hide();
+			socket.on('private message',function(data){
+				appendChatMessage(data.timestamp,data.user,data.message,null);
 			})
-        });
+
+			socket.on('get userlist',function(data){
+				
+				var $users = $("#users");
+				var userlist= data.userlist;
+				var html='';
+				console.log(userlist);
+				for (i=0; i< userlist.length;i++){
+					html+= '<li class="list-group-item">'+userlist[i]+'</li>';
+					console.log(html);
+					//html += '<li class="list-group-item">'+data[i]+'</li>';
+				}
+				$users.html(html);
+				$(".modal-body").html(html);
+				//$(".modal").show();
+				//$(".blurBackground").show();
+				$("#closeButton").on('click', function(){
+					$(".userList").hide();
+					$(".blurBackground").hide();
+				});
+			});
+			});
+			
+			
    function logOut(){
 	   //placeHolder for LogOut
    }
