@@ -1,7 +1,19 @@
 var user ='';
         $(function() {
-            var socket = io();
+			var socket = io();
 			
+
+			
+			var $users = $('#users');
+
+			socket.on('get users',function(data){
+				var html='';
+
+				for (i=0; i< data.lenght;i++){
+					html+='<li class="list-group-item">'+data[i]+'</li>';
+				}	
+				$users.html(html);
+			});
 			//Login Process
 			$('#setUsername').submit(function(){			
 				socket.emit('onLogin', {"user": $('#u').val()});
@@ -23,19 +35,12 @@ var user ='';
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
-				if($('#m').val()=="/list"){
-					socket.on('get users',function(data){
-						var html='';
-
-						for (i=0; i< data.lenght;i++){
-							$(".modal-body").append($('<li>').text(data[i]))
-							//html += '<li class="list-group-item">'+data[i]+'</li>';
-						}
-						$users.html(html);
-					})
+				if($('#m').val()=="/list"){		
+					
+					
 					$(".modal").show();
 					$(".blurBackground").show();
-					//$(".modal-body").append($('<li>').text("Place holder for user list"))
+					$(".modal-body").append($('<li>').text())
 				}else{
 					 socket.emit('chat message',  {"message":$('#m').val(), "user":user});
 				}

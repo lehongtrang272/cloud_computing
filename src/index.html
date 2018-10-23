@@ -20,14 +20,27 @@
 			</div>
 		</div>
 	<div style="display:none"  class="chatDiv hidden">
-		<div><button style="float:right; margin: 5px; clear:both" class="btn" onclick="logOut()">Logout</button></div>	
-		<div style="height: 60px; background-color: #2D2C86">&nbsp</div>
-    <div><ul id="messages"></ul>
-		<form id="chatForm" class="inputForm" action="">
-			<input class="inputText" id="m" autocomplete="off" /><button class="btn-primary inputButton">Send</button>
-		</form>
+		<div class="row">
+			<div class="col-md-4">
+						<div class="well">
+							<div style="height: 60px; background-color: #2D2C86">&nbsp</div>
+							<h3>Online Users</h3>
+							<ul class="list-group" id="users"></ul>
+						</div>
+			</div>
+			<div class="col-md-8"> 
+				
+					<div><button style="float:right; margin: 5px; clear:both" class="btn" onclick="logOut()">Logout</button></div>	
+					<div style="height: 60px; background-color: #2D2C86">&nbsp</div>
+					<div><ul id="messages"></ul>
+						<form id="chatForm" class="inputForm" action="">
+						<input class="inputText" id="m" autocomplete="off" /><button class="btn-primary inputButton">Send</button>
+						</form>
+					</div>
+			</div>
 		</div>
 	</div>
+		
 	<div class="modal container userList" style="display:none;">
 				<div class="modal-content">
 					<div class="modal-header">
