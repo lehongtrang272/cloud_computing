@@ -121,21 +121,21 @@ form .inputButton {
 }
 
 .privateMessage{
-	background: green !important;
+	background: rgb(143, 204, 143) !important;
 }
 
 .privateOwnMessage{
-	background: green !important;
+	background: rgb(143, 204, 143) !important;
 	text-align: right !important;
 }
 
 .ownMessage{
-	background:red !important;
+	background:rgb(228, 180, 180) !important;
 	text-align: right !important;
 }
 
 .oldMessage{
-	background: yellow !important;
+	background: rgb(240, 240, 203) !important;
 }
 
 .onlineUser{
