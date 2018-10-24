@@ -7,8 +7,10 @@
 
 var user ='';
         $(function() {
-            
+           
 			var socket = io('http://localhost:3000');
+
+			$("#logoutbutton").addClass("hidden");
 			
 			//Handle File Upload
 			var uploader = new SocketIOFileClient(socket);
@@ -49,7 +51,7 @@ var user ='';
 				$('.loginDiv').addClass("hidden");
                 $('.chatDiv').removeClass("hidden").show();
                 $('#logo').removeClass("logoLogIn").addClass("hidden");
-				appendChatMessage( null, "server", msg.message+" "+ user,"serverMessage");
+				appendChatMessage( "", "", msg.message+" "+ user,"serverMessage");
 				$('#m').focus();
 				//$('#messages').append($('<li>').append($('<p class="serverMessage">').text(">>"+msg.message+" "+ user+"<<")));
 			});
@@ -92,6 +94,8 @@ var user ='';
             return false;
             });
 			
+			
+				
 			
 			//receive chat message
             socket.on('chat message', function(msg){
@@ -145,14 +149,25 @@ var user ='';
 				});
 			});
 	
-   
+			
+				
+				$("#logoutbutton").on('click', function(){
+				socket.disconnect();
+				console.log("logoutbutton");
+				 $('.loginDiv').removeClass("hidden").show();
+				 $('.chatDiv').addClass("hidden");
+				 $('#logo').addClass("logoLogIn").removeClass("hidden");
+				 $('#u').val()='';
+				});
+		
 			
 			});
 			
 			
-   function logOut(){
-	   //placeHolder for LogOut
-   }
+			
+		
+		   
+   
 
    function selectUser(value){
 	   $('#m').val("@"+value+" ");
@@ -178,7 +193,7 @@ var user ='';
 			console.log(message);
 			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
-			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
+			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + " " + message));
 		}
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
