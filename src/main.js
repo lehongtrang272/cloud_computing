@@ -183,3 +183,28 @@ var user ='';
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
    }
+   //function handle changing state of label for upload Form
+	$(function(){
+		var input = $('.inputFile' );
+		var label	 = $(input).next(),
+			labelVal = $(label).html();
+
+		$(input).on( 'change', function( e )
+			{
+			var fileName = '';
+			if( this.files && this.files.length > 1 ){
+				fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
+			} else {
+				fileName = e.target.value.split( '\\' ).pop();
+			}
+			if( fileName  ){
+				$(label).css("background-color", "rgb(22, 114, 22)");
+				$(label).children().text(fileName);
+				console.log(fileName)
+			} else{
+				$(label).html(labelVal);
+				$(label).css("background-color", "#2D2C86");
+			}
+				
+			});
+	});

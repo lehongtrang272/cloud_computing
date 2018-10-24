@@ -70,8 +70,9 @@ label {
 form .inputText { 
     border: 1px solid rgb(118, 188, 211); 
     padding: 10px; 
-    width: 72%; 
+    width: 60%; 
     margin-right: .5%; 
+    margin-left: 180px;
     display: inline-block;
 }
 form .inputButton { 
@@ -92,7 +93,8 @@ form .inputButton {
     float: left;
 }
 .btn-info {
-    padding: 8px;
+    padding: 6px;
+    margin-bottom: 9px;
 }
 
 .hidden {
@@ -151,7 +153,7 @@ form .inputButton {
 .onlineUser{
 	background:white;
 	border:none;
-	color:green;
+	color:rgb(22, 114, 22);
 }
 .col-md-9, .col-md-3 {
     padding: 5px !important;
@@ -165,6 +167,26 @@ form .inputButton {
     background-color: #2D2C86; 
     color: white; 
     text-align: center
+}
+.inputFile {
+    width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+#labelForFile {
+    color: white;
+    background-color: #2D2C86 ;
+    display: inline-block;
+    cursor: pointer !important;
+    max-width: 100px;
+    overflow: hidden;
+}
+#fileUploadForm {
+    position: fixed;
+    bottom: 0;
 }
 .userList {
     width: 50vw;
