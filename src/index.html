@@ -37,8 +37,13 @@
 						<input class="inputText" id="m" autocomplete="off" />
 						<div class="btn-group">
 						<button class="btn btn-primary inputButton">Send</button>
-						<button class="btn btn-info"><img src="asset/attachment.png" height="20px" alt="Multimedia attachment"></button>
+						
 						</div>
+						</form>
+						<form id="fileUploadForm">
+						<input id="file" class="btn btn-info" type="file" multiple/>
+						<!-- <img src="asset/attachment.png" height="20px" alt="Multimedia attachment"></button> -->
+						<input type="submit" value="Upload"/>
 						</form>
 					</div>
 			</div>
@@ -46,7 +51,8 @@
 	</div>
 		
 		
-	<script src="/socket.io/socket.io.js"></script>
+	  <script src="socket.io.js"></script> 
+    <script src="socket.io-file-client.js"></script> 
   <script src="/main.js"></script>
   </body>
 </html>

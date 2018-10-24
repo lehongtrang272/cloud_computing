@@ -18,6 +18,9 @@
     "express": "^4.15.2",
     "jquery": "^3.3.1",
     "popper.js": "^1.14.4",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
+    "socket.io-file": "^2.0.3",
+    "socket.io-file-client": "^2.0.2"
   }
 }

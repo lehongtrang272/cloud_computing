@@ -7,8 +7,38 @@
 
 var user ='';
         $(function() {
-            var socket = io();
+            
+			var socket = io('http://localhost:3000');
 			
+			//Handle File Upload
+			var uploader = new SocketIOFileClient(socket);
+			var form = document.getElementById('fileUploadForm');
+			 
+			uploader.on('start', function(fileInfo) {
+				console.log('Start uploading', fileInfo);
+			});
+			uploader.on('stream', function(fileInfo) {
+				console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+			});
+			uploader.on('complete', function(fileInfo) {
+				console.log('Upload Complete', fileInfo);
+			});
+			uploader.on('error', function(err) {
+				console.log('Error!', err);
+			});
+			uploader.on('abort', function(fileInfo) {
+				console.log('Aborted: ', fileInfo);
+			});
+			 
+			form.onsubmit = function(ev) {
+				ev.preventDefault();
+				
+				var fileEl = document.getElementById('file');
+				var uploadIds = uploader.upload(fileEl, {
+					data: { /* Arbitrary data... */ }
+				});
+			};
+						
 			//Login Process
 			$('#setUsername').submit(function(){			
 				socket.emit('onLogin', {"user": $('#u').val()});
@@ -48,10 +78,6 @@ var user ='';
 					}else{
 							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
 						}
-				
-					
-
-					
 				}else if(message=="/list"){
 					socket.emit('get userlist');
 					//$(".modal-body").append($('<li>').text("Place holder for user list"))
@@ -65,11 +91,17 @@ var user ='';
 			
             return false;
             });
+			
+			
 			//receive chat message
             socket.on('chat message', function(msg){
 				var type = msg.type;
 				if(msg.user === user){
 					type = "ownMessage";
+					if(msg.type == "mediaFile"){
+						type+= " "+msg.type;
+					}
+					
 				}
 				appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
 				socket.on('UserList', function(msg){
@@ -126,6 +158,15 @@ var user ='';
 	   $('#m').val("@"+value+" ");
 	   $('#m').focus();
    }
+   
+   $('#mediaFileButton').on( "click", function() {
+		  alert( "Goodbye!" ); // jQuery 1.3+
+		});
+  /* 
+   function getMediaFile(value){
+	   socket.emit("getMediaFile", {"fileName":value});
+   }*/
+   
    /*  
 	Append chat Message
 	@type: css-classname to style different types of messages:
@@ -133,10 +174,12 @@ var user ='';
    */
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
-		if(sender=="server") {
+		if(type.includes("mediaFile")) {
 			console.log(message);
-			$('#messages').append($('<li class="'+className+'">').text(message));
+			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
 			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
 		}
+		var div = document.getElementById("m");
+		div.scrollTop = div.scrollHeight - div.clientHeight;
    }
