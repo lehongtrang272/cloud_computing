@@ -189,6 +189,11 @@ form .inputButton {
     position: fixed;
     bottom: 0;
 }
+
+.sendFileTo{
+	position: fixed; 
+    bottom: 0; 
+}
 .userList {
     width: 50vw;
     height: 50vh;

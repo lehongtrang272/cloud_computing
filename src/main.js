@@ -1,7 +1,5 @@
 	$(document).ready(function(){	   
-		   $(".onlineUser").click(function(){
-				alert("button");
-			});    
+		   $('#u').focus();
 		});
 
 
@@ -34,11 +32,31 @@ var anzDownloadButton = 0;
 			 
 			form.onsubmit = function(ev) {
 				ev.preventDefault();
+				var privateMessage =0;
+				var sendTo = "";
+				if($('#m').val().charAt(0)=="@"){
+					var message = $('#m').val();
+					var privateUser =[];
+					var i = message.indexOf(' ');
+					var splits = [message.slice(0,i), message.slice(i+1)];
+					privateUser= splits;
+					var receiver = privateUser[0].substr(1);
+					if(receiver != user){
+						if(privateUser.length>1){
+							sendTo = receiver;
+							var privateMessage =1;
+						}
+					}else{
+							appendChatMessage("","" ,"You send to yourself","serverMessage");
+						}
+						$('#m').val("");
+				}
+					var fileEl = document.getElementById('file');
+					var uploadIds = uploader.upload(fileEl, {
+						data: { "privateMessage":privateMessage,
+								"sendTo": sendTo}
+					});
 				
-				var fileEl = document.getElementById('file');
-				var uploadIds = uploader.upload(fileEl, {
-					data: { /* Arbitrary data... */ }
-				});
 			};
 						
 			//Login Process
@@ -62,24 +80,12 @@ var anzDownloadButton = 0;
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
+				console.log("Submit message");
 				var message = $('#m').val();
 				if(message != ""){
 				//Send private Message
 				if(message.charAt(0)=="@"){
-					var privateUser =[];
-					var i = message.indexOf(' ');
-					var splits = [message.slice(0,i), message.slice(i+1)];
-					privateUser= splits;
-					console.log(privateUser);
-					var receiver = privateUser[0].substr(1);
-					if(receiver != user){
-						if(privateUser.length>1){
-							socket.emit('private message',{"user": receiver, "message": privateUser[1]});
-							console.log(privateUser[0].substr(1));
-						}
-					}else{
-							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
-						}
+					sendPrivateMessage(message);
 				}else if(message=="/list"){
 					socket.emit('get userlist');
 					//$(".modal-body").append($('<li>').text("Place holder for user list"))
@@ -94,11 +100,27 @@ var anzDownloadButton = 0;
             return false;
             });
 			
-			
+			function sendPrivateMessage(message){
+					var privateUser =[];
+					var i = message.indexOf(' ');
+					var splits = [message.slice(0,i), message.slice(i+1)];
+					privateUser= splits;
+					console.log(privateUser);
+					var receiver = privateUser[0].substr(1);
+					if(receiver != user){
+						if(privateUser.length>1){
+							socket.emit('private message',{"user": receiver, "message": privateUser[1]});
+							console.log(privateUser[0].substr(1));
+						}
+					}else{
+							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
+						}
+			}
 				
 			
 			//receive chat message
             socket.on('chat message', function(msg){
+				console.log("receiveChatMessage");
 				var type = msg.type;
 				if(msg.user === user){
 					type = "ownMessage";
@@ -110,13 +132,10 @@ var anzDownloadButton = 0;
 				
 				if(type.includes("mediaFile")) {
 					// $('#messages').append($('<li class="'+msg.type+'">').append($('<input type="button" id="mediaFileButton" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
-					$('#messages').append($('<li class="'+msg.type+'">').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
-					
-					
+					$('#messages').append($('<li class="'+type+'">:').text(msg.user+':').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
 					anzDownloadButton++;
 				}
 				else{
-					anzDownloadButton++;
 					appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
 					socket.on('UserList', function(msg){
 					console.log(msg);
@@ -149,7 +168,9 @@ var anzDownloadButton = 0;
 				var html='';
 				//Add userlist to sidebar
 				for (i=0; i< userlist.length;i++){
-					html+= '<li class="list-group-item"><button class="onlineUser" onclick="selectUser(this.value);" value="'+userlist[i]+'" >'+userlist[i]+'</button></li>';
+					html+= '<li class="list-group-item"><button class="onlineUser" onclick="selectUser(this.value);" value="'+userlist[i]+'" >'+userlist[i]+'</button>'
+					
+					+'</li>';
 					console.log(html);
 				}
 				$users.html(html);
@@ -190,7 +211,6 @@ var anzDownloadButton = 0;
 
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
-		$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
 		if(type.includes("mediaFile")) {
 			console.log(message);
 			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
