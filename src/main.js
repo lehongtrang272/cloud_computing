@@ -1,4 +1,6 @@
-	$(document).ready(function(){	   
+//Authors : Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195
+
+$(document).ready(function(){	   
 		   $(".onlineUser").click(function(){
 				alert("button");
 			});    
