@@ -1,3 +1,4 @@
+//Authors : Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
