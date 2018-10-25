@@ -110,7 +110,7 @@ io.on('connection', function(socket){
 	  UserList.splice( UserList.indexOf(socket.user), 1 );
 	  Connections.splice( UserList.indexOf(socket), 1 );
 	  updateUsernames();
-	socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
+	  socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
    
    

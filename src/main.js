@@ -8,8 +8,14 @@
 var user ='';
 var anzDownloadButton = 0;
         $(function() {
+<<<<<<< HEAD
 			
+=======
+           
+>>>>>>> 21a61519b1f0907eda5419da27dc4c1b3e0e4a2d
 			var socket = io('http://localhost:3000');
+
+			$("#logoutbutton").addClass("hidden");
 			
 			//Handle File Upload
 			var uploader = new SocketIOFileClient(socket);
@@ -50,7 +56,7 @@ var anzDownloadButton = 0;
 				$('.loginDiv').addClass("hidden");
                 $('.chatDiv').removeClass("hidden").show();
                 $('#logo').removeClass("logoLogIn").addClass("hidden");
-				appendChatMessage( null, "server", msg.message+" "+ user,"serverMessage");
+				appendChatMessage( "", "", msg.message+" "+ user,"serverMessage");
 				$('#m').focus();
 				//$('#messages').append($('<li>').append($('<p class="serverMessage">').text(">>"+msg.message+" "+ user+"<<")));
 			});
@@ -93,6 +99,8 @@ var anzDownloadButton = 0;
             return false;
             });
 			
+			
+				
 			
 			//receive chat message
             socket.on('chat message', function(msg){
@@ -159,14 +167,25 @@ var anzDownloadButton = 0;
 				});
 			});
 	
-   
+			
+				
+				$("#logoutbutton").on('click', function(){
+				socket.disconnect();
+				console.log("logoutbutton");
+				 $('.loginDiv').removeClass("hidden").show();
+				 $('.chatDiv').addClass("hidden");
+				 $('#logo').addClass("logoLogIn").removeClass("hidden");
+				 $('#u').val()='';
+				});
+		
 			
 			});
 			
 			
-   function logOut(){
-	   //placeHolder for LogOut
-   }
+			
+		
+		   
+   
 
    function selectUser(value){
 	   $('#m').val("@"+value+" ");
@@ -176,8 +195,17 @@ var anzDownloadButton = 0;
 
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
+<<<<<<< HEAD
 		$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
 		
+=======
+		if(type.includes("mediaFile")) {
+			console.log(message);
+			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
+		}else {
+			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + " " + message));
+		}
+>>>>>>> 21a61519b1f0907eda5419da27dc4c1b3e0e4a2d
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
    }

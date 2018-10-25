@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "author": "",
+  "author": "Hannah Haist (ID:752731), Trang Le Hong (ID:310195), Felix Schoch (ID:761390)",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.1.3",
