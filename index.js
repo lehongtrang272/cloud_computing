@@ -2,8 +2,10 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
+var fs = require('fs');
  
 
  
@@ -20,6 +22,11 @@ app.get('/socket.io.js', (req, res, next) => {
 app.get('/socket.io-file-client.js', (req, res, next) => {
     return res.sendFile(__dirname + '/node_modules/socket.io-file-client/socket.io-file-client.js');
 });
+
+
+
+
+app.use(express.static('data'));
 
 //Routing to src folder
 app.use(express.static(path.join(__dirname, 'src')));
@@ -107,8 +114,7 @@ io.on('connection', function(socket){
    });
    
    
-   
-   
+
    
    
    
@@ -147,9 +153,7 @@ io.on('connection', function(socket){
         console.log('Aborted: ', fileInfo);
     });
    
-   
-   
-   
+ 
    
    
 });

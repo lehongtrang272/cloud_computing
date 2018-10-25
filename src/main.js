@@ -6,8 +6,9 @@
 
 
 var user ='';
+var anzDownloadButton = 0;
         $(function() {
-            
+			
 			var socket = io('http://localhost:3000');
 			
 			//Handle File Upload
@@ -103,12 +104,25 @@ var user ='';
 					}
 					
 				}
-				appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
-				socket.on('UserList', function(msg){
-				console.log(msg);
-				});
+				
+				if(type.includes("mediaFile")) {
+					// $('#messages').append($('<li class="'+msg.type+'">').append($('<input type="button" id="mediaFileButton" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
+					$('#messages').append($('<li class="'+msg.type+'">').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
+					
+					
+					anzDownloadButton++;
+				}
+				else{
+					anzDownloadButton++;
+					appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
+					socket.on('UserList', function(msg){
+					console.log(msg);
+					});
+						
+						}
 			
 			});
+		
 			//receive private message
 			socket.on('private message',function(data){
 				if(data.success == 1){
@@ -159,27 +173,11 @@ var user ='';
 	   $('#m').focus();
    }
    
-   $('#mediaFileButton').on( "click", function() {
-		  alert( "Goodbye!" ); // jQuery 1.3+
-		});
-  /* 
-   function getMediaFile(value){
-	   socket.emit("getMediaFile", {"fileName":value});
-   }*/
-   
-   /*  
-	Append chat Message
-	@type: css-classname to style different types of messages:
-	serverMessage, privateMessage, privateOwnMessage, chatMessage, oldMessage, ownMessage
-   */
+
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
-		if(type.includes("mediaFile")) {
-			console.log(message);
-			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
-		}else {
-			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
-		}
+		$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + ": " + message));
+		
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
    }
