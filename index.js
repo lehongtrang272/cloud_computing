@@ -146,8 +146,8 @@ io.on('connection', function(socket){
 		//Message to all clients
 		console.log(fileInfo.data);
 		console.log(fileInfo.data.privateMessage);
-		if(fileInfo.data.privateMessage === 0){
-		 io.emit('chat message', {"user": socket.user, "message": fileInfo.name, "timeStamp": getTimeStamp(), "type": "mediaFile"});
+		if(fileInfo.data.privateMessage == 0){
+		 io.emit('chat message', {"user": socket.user, "message": fileInfo.name, "timeStamp": getTimeStamp(), "success":1, "type": "mediaFile"});
 		}else{
 			var userExists = false;
 			var sendTo = fileInfo.data.sendTo;
@@ -161,11 +161,11 @@ io.on('connection', function(socket){
 				  }
 			  }
 			  if(userExists){
-				socket.emit('chat message', {"user": socket.user+"->"+sendTo, "message": fileInfo.name, "timeStamp": getTimeStamp(), "type": "mediaFile privateMessage ownMessage"});
-				toSocket.emit('chat message', {"user": socket.user+"->"+sendTo, "message": fileInfo.name, "timeStamp": getTimeStamp(), "type": "mediaFile privateMessage"});
+				socket.emit('chat message', {"user": socket.user+"->"+sendTo, "message": fileInfo.name, "success":1, "timeStamp": getTimeStamp(), "type": "mediaFile privateMessage ownMessage"});
+				toSocket.emit('chat message', {"user": socket.user+"->"+sendTo, "message": fileInfo.name, "success":1, "timeStamp": getTimeStamp(), "type": "mediaFile privateMessage"});
 			  }
 			  else{
-				  socket.emit('private message',{"message":"", "sender":socket.user, "receiver":data.user,"success":0,"timestamp":getTimeStamp()});
+				  socket.emit('private message',{"message":"", "sender":socket.user, "receiver":sendTo,"success":0,"timestamp":getTimeStamp()});
 			  }
 		}
     });

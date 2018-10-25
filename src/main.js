@@ -24,12 +24,20 @@ var anzDownloadButton = 0;
 			 
 			uploader.on('start', function(fileInfo) {
 				console.log('Start uploading', fileInfo);
+				$('#uploadButton').css("background-color","#17a2b8");
+				$('#uploadButton').css("border-color-color","#17a2b8");
+				$('#uploadButton').css("font-size","0.9rem");
+				$('#uploadButton').val("Uploading");
 			});
 			uploader.on('stream', function(fileInfo) {
 				console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
 			});
 			uploader.on('complete', function(fileInfo) {
 				console.log('Upload Complete', fileInfo);
+				$('#uploadButton').css("background-color","green");
+				$('#uploadButton').css("border-color","green");
+				$('#uploadButton').css("font-size","1rem");
+				$('#uploadButton').val("Upload");
 			});
 			uploader.on('error', function(err) {
 				console.log('Error!', err);
@@ -37,7 +45,7 @@ var anzDownloadButton = 0;
 			uploader.on('abort', function(fileInfo) {
 				console.log('Aborted: ', fileInfo);
 			});
-			 
+			 //Upload Media File
 			form.onsubmit = function(ev) {
 				ev.preventDefault();
 				var privateMessage =0;
@@ -139,9 +147,13 @@ var anzDownloadButton = 0;
 				}
 				
 				if(type.includes("mediaFile")) {
-					// $('#messages').append($('<li class="'+msg.type+'">').append($('<input type="button" id="mediaFileButton" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
-					$('#messages').append($('<li class="'+type+'">:').text(msg.user+':').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
+					if(msg.success == 1){
+					$('#messages').append($('<li class="'+type+'">:').text(msg.timeStamp+" "+msg.user+':').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
 					anzDownloadButton++;
+					}
+					else{
+						appendChatMessage(msg.timestamp,"" ,"User does not exist","serverMessage");
+					}
 				}
 				else{
 					appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
