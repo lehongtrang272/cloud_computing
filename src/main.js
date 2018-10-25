@@ -1,14 +1,13 @@
-<<<<<<< HEAD
+
 	$(document).ready(function(){	   
 		   $('#u').focus();
-=======
+	});
 //Authors : Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195
 
 $(document).ready(function(){	   
 		   $(".onlineUser").click(function(){
 				alert("button");
 			});    
->>>>>>> a0a4edc3f5ade3e19b7780c2d5899648c233e64f
 		});
 
 
