@@ -14,7 +14,7 @@ $(document).ready(function(){
 var user ='';
 var anzDownloadButton = 0;
         $(function() {
-			var socket = io('http://localhost:3000');
+			var socket = io('http://localhost:8080');
 
 			$("#logoutbutton").addClass("hidden");
 			
@@ -148,7 +148,7 @@ var anzDownloadButton = 0;
 				
 				if(type.includes("mediaFile")) {
 					if(msg.success == 1){
-					$('#messages').append($('<li class="'+type+'">:').text(msg.timeStamp+" "+msg.user+':').append($('<a href="http://localhost:3000/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
+					$('#messages').append($('<li class="'+type+'">:').text(msg.timeStamp+" "+msg.user+':').append($('<a href="http://localhost:8080/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
 					anzDownloadButton++;
 					}
 					else{
