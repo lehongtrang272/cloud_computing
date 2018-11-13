@@ -14,7 +14,8 @@ $(document).ready(function(){
 var user ='';
 var anzDownloadButton = 0;
         $(function() {
-			var socket = io('http://localhost:8080');
+			let port = process.env.PORT || 3000;
+			var socket = io(port);
 
 			$("#logoutbutton").addClass("hidden");
 			
