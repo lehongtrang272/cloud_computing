@@ -14,6 +14,7 @@ $(document).ready(function(){
 var user ='';
 var anzDownloadButton = 0;
         $(function() {
+			
 			// let port = process.env.PORT || 3000;
 			var socket = io(process.env.PORT || 3000);
 
