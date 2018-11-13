@@ -17,7 +17,7 @@ var anzDownloadButton = 0;
 			
 			var port = process.env.PORT || 3000;
 			console.log(port)
-			var socket = io(process.env.PORT || 3000);
+			var socket = io(port);
 
 			$("#logoutbutton").addClass("hidden");
 			
