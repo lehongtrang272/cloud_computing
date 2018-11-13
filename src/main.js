@@ -10,7 +10,6 @@ $(document).ready(function(){
 			});    
 		});
 
-
 var user ='';
 var anzDownloadButton = 0;
         $(function() {
@@ -99,7 +98,6 @@ var anzDownloadButton = 0;
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
-				console.log("Submit message");
 				var message = $('#m').val();
 				if(message != ""){
 				//Send private Message
@@ -124,12 +122,10 @@ var anzDownloadButton = 0;
 					var i = message.indexOf(' ');
 					var splits = [message.slice(0,i), message.slice(i+1)];
 					privateUser= splits;
-					console.log(privateUser);
 					var receiver = privateUser[0].substr(1);
 					if(receiver != user){
 						if(privateUser.length>1){
 							socket.emit('private message',{"user": receiver, "message": privateUser[1]});
-							console.log(privateUser[0].substr(1));
 						}
 					}else{
 							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
@@ -139,7 +135,6 @@ var anzDownloadButton = 0;
 			
 			//receive chat message
             socket.on('chat message', function(msg){
-				console.log("receiveChatMessage");
 				var type = msg.type;
 				if(msg.user === user){
 					type = "ownMessage";
@@ -194,7 +189,6 @@ var anzDownloadButton = 0;
 					html+= '<li class="list-group-item"><button class="onlineUser" onclick="selectUser(this.value);" value="'+userlist[i]+'" >'+userlist[i]+'</button>'
 					
 					+'</li>';
-					console.log(html);
 				}
 				$users.html(html);
 				$(".modal-body").html(html);
@@ -235,10 +229,10 @@ var anzDownloadButton = 0;
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
 		if(type.includes("mediaFile")) {
-			console.log(message);
 			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
-			$('#messages').append($('<li class="'+className+'">').text(timeStamp + " " + sender + " " + message));
+			var mood = getTone(message).then(response => response.mood);
+			$('#messages').append($('<li class="'+className+' '+ mood + '">').text(timeStamp + " " + sender + " " + message));
 		}
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
@@ -260,7 +254,6 @@ var anzDownloadButton = 0;
 			if( fileName  ){
 				$(label).css("background-color", "rgb(22, 114, 22)");
 				$(label).children().text(fileName);
-				console.log(fileName)
 			} else{
 				$(label).html(labelVal);
 				$(label).css("background-color", "#2D2C86");
@@ -268,3 +261,29 @@ var anzDownloadButton = 0;
 				
 			});
 	});
+	const getTone = async (message) => {
+		const call = await fetch("/tone", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'mode': 'cors'
+            },
+            body: JSON.stringify({
+               texts: [message]
+            })
+		})
+        .then((response) => {
+            var contentType = response.headers.get("content-type");
+            if(contentType && contentType.includes("application/json")) {
+               return response.json();
+            }
+            throw new TypeError("Oops, we haven't got JSON!");
+		});
+		const mood = await call.mood;
+		console.log(mood);
+		
+		return mood;
+		
+	
+    }

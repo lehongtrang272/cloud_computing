@@ -219,3 +219,11 @@ form .inputButton {
     z-index: 1 !important;
     position: absolute;
 }
+.unhappy {
+    background-color: #000000;
+    opacity: 0.3;
+}
+.happy {
+    background-color: pink;
+    opacity: 0.3;
+}

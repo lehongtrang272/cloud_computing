@@ -7,6 +7,10 @@ var io = require('socket.io')(http);
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
+var ToneAnalyzerV3 = require('watson-developer-cloud/tone-analyzer/v3');
+var bodyParser = require('body-parser');
+
+require('dotenv').config({silent: true});
  
 
  
@@ -193,3 +197,74 @@ function getTimeStamp(){
 	var date = new Date();
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
 }
+
+var toneAnalyzer = new ToneAnalyzerV3({
+	version_date: '2017-09-21',
+  });
+  
+  app.use(bodyParser.json());
+  
+  app.use(express.static('public'));
+  
+  function createToneRequest (request) {
+	var toneChatRequest;
+  
+	if (request.texts) {
+	  toneChatRequest = {utterances: []};
+  
+	  for (var i in request.texts) {
+		var utterance = {text: request.texts[i]};
+		toneChatRequest.utterances.push(utterance);
+	  }
+	}
+  
+	return toneChatRequest;
+  }
+  
+  function happyOrUnhappy (response) {
+	var happyTones = ['satisfied', 'excited', 'polite', 'sympathetic'];
+	var unhappyTones = ['sad', 'frustrated', 'impolite'];
+  
+	var happyValue = 0;
+	var unhappyValue = 0;
+  
+	for (var i in response.utterances_tone) {
+	  var utteranceTones = response.utterances_tone[i].tones;
+	  for (var j in utteranceTones) {
+		if (happyTones.includes(utteranceTones[j].tone_id)) {
+		  happyValue = happyValue + utteranceTones[j].score;
+		}
+		if (unhappyTones.includes(utteranceTones[j].tone_id)) {
+		  unhappyValue = unhappyValue + utteranceTones[j].score;
+		}
+	  }
+	}
+	if (happyValue >= unhappyValue) {
+	  return 'happy';
+	}
+	else {
+	  return 'unhappy';
+	}
+  }
+  
+  /* Example 
+  {
+	"texts": ["I do not like what I see", "I like very much what you have said."]
+  }
+  */
+  app.post('/tone', (req, res, next) => {
+	var toneRequest = createToneRequest(req.body);
+  
+	if (toneRequest) {
+	  toneAnalyzer.toneChat(toneRequest, (err, response) => {
+		if (err) {
+		  return next(err);
+		}
+		var answer = {mood: happyOrUnhappy(response)};
+		return res.json(answer);
+	  });
+	}
+	else {
+	  return res.status(400).send({error: 'Invalid Input'});
+	}
+  });
