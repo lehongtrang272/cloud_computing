@@ -220,10 +220,8 @@ form .inputButton {
     position: absolute;
 }
 .unhappy {
-    background-color: #000000;
-    opacity: 0.3;
+    background-color: rgb(238, 232, 238) !important;
 }
 .happy {
-    background-color: pink;
-    opacity: 0.3;
+    background-color: rgb(190, 223, 190) !important;
 }

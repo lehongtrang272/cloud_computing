@@ -11,6 +11,7 @@ $(document).ready(function(){
 		});
 
 var user ='';
+var mood = '';
 var anzDownloadButton = 0;
         $(function() {
 			
@@ -229,10 +230,11 @@ var anzDownloadButton = 0;
    function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
 		if(type.includes("mediaFile")) {
-			$('#messages').append($('<li class="'+className+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
+			$('#messages').append($('<li class="'+className + ' ' + mood+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
-			var mood = getTone(message).then(response => response.mood);
+			getTone(message);
 			$('#messages').append($('<li class="'+className+' '+ mood + '">').text(timeStamp + " " + sender + " " + message));
+			mood="neutral";
 		}
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
@@ -280,10 +282,7 @@ var anzDownloadButton = 0;
             }
             throw new TypeError("Oops, we haven't got JSON!");
 		});
-		const mood = await call.mood;
-		console.log(mood);
-		
+		mood = await call.mood;
+		console.log(call.mood);
 		return mood;
-		
-	
     }
