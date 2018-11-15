@@ -129,7 +129,7 @@ var anzDownloadButton = 0;
 							socket.emit('private message',{"user": receiver, "message": privateUser[1]});
 						}
 					}else{
-							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
+							getTone("","" ,"You cant whisper to yourself","serverMessage");
 						}
 			}
 				
@@ -155,7 +155,7 @@ var anzDownloadButton = 0;
 					}
 				}
 				else{
-					appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
+					getTone(msg.timeStamp,msg.user,msg.message, type);
 					socket.on('UserList', function(msg){
 					console.log(msg);
 					});
@@ -174,7 +174,7 @@ var anzDownloadButton = 0;
 					else{
 						type="privateMessage";
 					}
-					appendChatMessage(data.timestamp,data.sender+"->"+data.receiver ,data.message,type);
+					getTone(data.timestamp,data.sender+"->"+data.receiver ,data.message,type);
 				}else{
 					appendChatMessage(data.timestamp,"" ,"User does not exist","serverMessage");
 				}
@@ -227,12 +227,11 @@ var anzDownloadButton = 0;
    }
    
 
-   function appendChatMessage(timeStamp, sender, message, type){
+   function appendChatMessage(timeStamp, sender, message, type, mood){
 		className = type;
 		if(type.includes("mediaFile")) {
 			$('#messages').append($('<li class="'+className + ' ' + mood+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
-			getTone(message);
 			$('#messages').append($('<li class="'+className+' '+ mood + '">').text(timeStamp + " " + sender + " " + message));
 			mood="neutral";
 		}
@@ -263,7 +262,7 @@ var anzDownloadButton = 0;
 				
 			});
 	});
-	const getTone = async (message) => {
+	const getTone = async (timeStamp, sender, message, type) => {
 		const call = await fetch("/tone", {
             method: "POST",
             headers: {
@@ -282,7 +281,7 @@ var anzDownloadButton = 0;
             }
             throw new TypeError("Oops, we haven't got JSON!");
 		});
-		mood = await call.mood;
-		console.log(call.mood);
-		return mood;
+		var mood = await call.mood;
+		appendChatMessage(timeStamp, sender, message, type,mood)
+		
     }
