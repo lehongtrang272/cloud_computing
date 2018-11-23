@@ -3,4 +3,4 @@ applications:
    host: hannahtrangfellixx
    memory: 512M
    services:
-    - my-compose-for-mysql-service
+    - MySQL-Chatroom
