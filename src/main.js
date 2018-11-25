@@ -17,7 +17,7 @@ var anzDownloadButton = 0;
 			
 			var port = process.env.PORT || 443;
 			
-			var socket = io().connect('http://hannahtrangfellixx.eu-de.mybluemix.net:'+port, {secure:true});
+			var socket = io().connect('http://hannahtrangfellixx.eu-de.mybluemix.net', {secure:true});
 
 			$("#logoutbutton").addClass("hidden");
 			
