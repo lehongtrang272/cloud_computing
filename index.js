@@ -13,7 +13,7 @@ const option = {
 	cert:fs.readFileSync('tls/MyCertificate.crt')
 }
 
-var port = process.env.PORT || 443;
+var port = process.env.PORT || 8080;
 var server = https.createServer(option, app).listen(port, function(){
   console.log('listening on *: '+port);
 });
