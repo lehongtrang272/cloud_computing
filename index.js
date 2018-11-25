@@ -14,9 +14,7 @@ const option = {
 }
 
 var port = process.env.PORT || 443;
-var server = https.createServer(option, app).listen(port, function(){
-  console.log('listening on *: '+port);
-});
+var server = https.createServer(option, app)
 var io = require('socket.io')(server);
 
 
@@ -193,3 +191,6 @@ function getTimeStamp(){
 	var date = new Date();
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
 }
+server.listen(port, function(){
+  console.log('listening on *: '+port);
+});
