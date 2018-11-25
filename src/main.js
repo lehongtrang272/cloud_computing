@@ -15,9 +15,9 @@ var mood = '';
 var anzDownloadButton = 0;
         $(function() {
 			
-			// var port = process.env.PORT || 3000;
-			// console.log(port)
-			var socket = io().connect('https://localhost:443', {secure:true});
+			var port = process.env.PORT || 443;
+			
+			var socket = io().connect('http://hannahtrangfellixx.eu-de.mybluemix.net:'+port, {secure:true});
 
 			$("#logoutbutton").addClass("hidden");
 			
