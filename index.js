@@ -1,19 +1,23 @@
 //Authors : Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var https = require('https');
+
 
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
-var ToneAnalyzerV3 = require('watson-developer-cloud/tone-analyzer/v3');
-var bodyParser = require('body-parser');
 
-require('dotenv').config({silent: true});
- 
+const option = {
+	key: fs.readFileSync('tls/Mykey.key'),
+	cert:fs.readFileSync('tls/MyCertificate.crt')
+}
 
- 
+var port = process.env.PORT || 443;
+var server = https.createServer(option, app).listen(port, function(){
+  console.log('listening on *: '+port);
+});
+var io = require('socket.io')(server);
 
 
 app.get('/', function(req, res){
@@ -185,86 +189,7 @@ io.on('connection', function(socket){
    
 });
 
-var port = process.env.PORT || 3000;
-http.listen(port, function(){
-  console.log('listening on *: '+port);
-});
-
-
-
-//Returns the current Timestampt as String
 function getTimeStamp(){
 	var date = new Date();
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
 }
-
-var toneAnalyzer = new ToneAnalyzerV3({
-	version_date: '2017-09-21',
-  });
-  
-  app.use(bodyParser.json());
-  
-  app.use(express.static('public'));
-  
-  function createToneRequest (request) {
-	var toneChatRequest;
-  
-	if (request.texts) {
-	  toneChatRequest = {utterances: []};
-  
-	  for (var i in request.texts) {
-		var utterance = {text: request.texts[i]};
-		toneChatRequest.utterances.push(utterance);
-	  }
-	}
-  
-	return toneChatRequest;
-  }
-  
-  function happyOrUnhappy (response) {
-	var happyTones = ['satisfied', 'excited', 'polite', 'sympathetic'];
-	var unhappyTones = ['sad', 'frustrated', 'impolite'];
-  
-	var happyValue = 0;
-	var unhappyValue = 0;
-  
-	for (var i in response.utterances_tone) {
-	  var utteranceTones = response.utterances_tone[i].tones;
-	  for (var j in utteranceTones) {
-		if (happyTones.includes(utteranceTones[j].tone_id)) {
-		  happyValue = happyValue + utteranceTones[j].score;
-		}
-		if (unhappyTones.includes(utteranceTones[j].tone_id)) {
-		  unhappyValue = unhappyValue + utteranceTones[j].score;
-		}
-	  }
-	}
-	if (happyValue >= unhappyValue) {
-	  return 'happy';
-	}
-	else {
-	  return 'unhappy';
-	}
-  }
-  
-  /* Example 
-  {
-	"texts": ["I do not like what I see", "I like very much what you have said."]
-  }
-  */
-  app.post('/tone', (req, res, next) => {
-	var toneRequest = createToneRequest(req.body);
-  
-	if (toneRequest) {
-	  toneAnalyzer.toneChat(toneRequest, (err, response) => {
-		if (err) {
-		  return next(err);
-		}
-		var answer = {mood: happyOrUnhappy(response)};
-		return res.json(answer);
-	  });
-	}
-	else {
-	  return res.status(400).send({error: 'Invalid Input'});
-	}
-  });

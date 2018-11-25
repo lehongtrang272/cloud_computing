@@ -17,7 +17,7 @@ var anzDownloadButton = 0;
 			
 			// var port = process.env.PORT || 3000;
 			// console.log(port)
-			var socket = io();
+			var socket = io().connect('https://localhost:443', {secure:true});
 
 			$("#logoutbutton").addClass("hidden");
 			
@@ -129,7 +129,7 @@ var anzDownloadButton = 0;
 							socket.emit('private message',{"user": receiver, "message": privateUser[1]});
 						}
 					}else{
-							getTone("","" ,"You cant whisper to yourself","serverMessage");
+							appendChatMessage("","" ,"You cant whisper to yourself","serverMessage");
 						}
 			}
 				
@@ -155,7 +155,7 @@ var anzDownloadButton = 0;
 					}
 				}
 				else{
-					getTone(msg.timeStamp,msg.user,msg.message, type);
+					appendChatMessage(msg.timeStamp,msg.user,msg.message, type);
 					socket.on('UserList', function(msg){
 					console.log(msg);
 					});
@@ -174,7 +174,7 @@ var anzDownloadButton = 0;
 					else{
 						type="privateMessage";
 					}
-					getTone(data.timestamp,data.sender+"->"+data.receiver ,data.message,type);
+					appendChatMessage(data.timestamp,data.sender+"->"+data.receiver ,data.message,type);
 				}else{
 					appendChatMessage(data.timestamp,"" ,"User does not exist","serverMessage");
 				}
@@ -262,26 +262,3 @@ var anzDownloadButton = 0;
 				
 			});
 	});
-	const getTone = async (timeStamp, sender, message, type) => {
-		const call = await fetch("/tone", {
-            method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'mode': 'cors'
-            },
-            body: JSON.stringify({
-               texts: [message]
-            })
-		})
-        .then((response) => {
-            var contentType = response.headers.get("content-type");
-            if(contentType && contentType.includes("application/json")) {
-               return response.json();
-            }
-            throw new TypeError("Oops, we haven't got JSON!");
-		});
-		var mood = await call.mood;
-		appendChatMessage(timeStamp, sender, message, type,mood)
-		
-    }
