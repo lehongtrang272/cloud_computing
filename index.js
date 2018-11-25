@@ -9,8 +9,8 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 
 const option = {
-	key: fs.readFileSync('tls/Mykey.key'),
-	cert:fs.readFileSync('tls/MyCertificate.crt')
+	key: fs.readFileSync('tls/server.key'),
+	cert:fs.readFileSync('tls/server_cert.crt')
 }
 
 var port = process.env.PORT || 443;
