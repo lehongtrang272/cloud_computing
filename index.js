@@ -3,13 +3,42 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-
+const assert = require('assert');
+const util = require('util')
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
  
 
- 
+const mysql = require("mysql");
+
+let cfenv = require('cfenv');
+
+// load local VCAP configuration  and service credentials
+let vcapLocal;
+try {
+  vcapLocal = require('./vcap-local.json');
+  console.log("Loaded local VCAP");
+} catch (e) { 
+    // console.log(e)
+}
+
+const appEnvOpts = vcapLocal ? { vcap: vcapLocal} : {}
+const appEnv = cfenv.getAppEnv(appEnvOpts);
+
+// Within the application environment (appenv) there's a services object
+let services = appEnv.services;
+
+// The services object is a map named by service so we extract the one for PostgreSQL
+let mysql_services = services["MySQL-Chatroom"]; 
+
+// This check ensures there is a services for MySQL databases
+ assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services"); 
+
+// We now take the first bound MongoDB service and extract it's credentials object
+let credentials = mysql_services[0].credentials;
+
+let connectionString = credentials.uri;
 
 
 app.get('/', function(req, res){
