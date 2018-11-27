@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+	  <!--Authors: Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195 -->
+		<title>Socket.IO chat</title>
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+		<div class="container">
+			<div class="logoLogIn" id="logo"><img src="asset/logo.png"></div>
+  		<div class="registerDiv">
+				<form id="Registration" action="">
+					<label for="u1">Select Username</label><br/>
+                    <input id="u1" autocomplete="off" /><br/>
+                    <label for="p1">Select Passwort</label><br/>
+                    <input type= "password" id="p1" autocomplete="off"/><br/>
+                    <label for="p2">Confirm Passwort</label><br/>
+                    <input type= "password" id="p2" autocomplete="off" /><br/>
+                    <button>Register</button>
+                    <button>Back to Login</button>
+				</form>
+				<p id="errorMessage"></p>
+			</div>
+		</div>
+	
+		
+		
+		<script src="socket.io.js"></script> 
+		<script src="socket.io-file-client.js"></script> 
+		<script src="/main.js"></script>
+  </body>
+</html>
