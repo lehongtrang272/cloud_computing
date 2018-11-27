@@ -8,6 +8,7 @@ const util = require('util')
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
+var ibmdb = require('ibm_db');
  
 
 var port = process.env.PORT || 3000;
@@ -16,6 +17,12 @@ var port = process.env.PORT || 3000;
 	});
 
  
+ 
+var connectionStr = "DATABASE=BLUDB;"+
+			"HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;"+
+			"UID=mds89277;"+
+			"PWD=fs^tlg7qrv4z236d;"+
+			"PORT=50000"; 
  
 const mysql = require('mysql');
 
@@ -83,6 +90,27 @@ var UserList = [];
 var MessageList=[];
 var Connections=[];
 io.on('connection', function(socket){
+	ibmdb.open(connectionStr, function (err,conn) {
+
+if (err) return console.log(err);
+
+
+console.log("connected");
+/* conn.query('select 1 from sysibm.sysdummy1', function (err, data) {
+
+if (err) console.log(err);
+
+else console.log(data);
+
+conn.close(function () {
+
+console.log('done');
+
+});
+
+}); */
+
+});
 	
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', function(msg){
