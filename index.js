@@ -64,9 +64,17 @@ app.get('/socket.io-file-client.js', (req, res, next) => {
 
 
 app.use(express.static('data'));
-
-//Routing to src folder
 app.use(express.static(path.join(__dirname, 'src')));
+app.use(function(req,res,next){
+	if(req.secure || process.env.BLUEMIX_REGION === undefined){
+		next();
+	} else {
+		console.log('redirect to secured connection');
+		res.redirect('https://'+req.headers.host + req.url);
+	}
+})
+//Routing to src folder
+
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
