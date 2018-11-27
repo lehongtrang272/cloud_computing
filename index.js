@@ -3,6 +3,9 @@ var express = require('express');
 var app = express();
 var https = require('https');
 
+const helmet = require('helmet');
+
+
 
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
@@ -13,10 +16,17 @@ const option = {
 	cert:fs.readFileSync('tls/server_cert1.crt')
 }
 
+
+
+
 var port = process.env.PORT || 443;
-var server = https.createServer(option, app).listen(port, function(){
+ var server = https.createServer(option, app).listen(port, function(){
   console.log('listening on *: '+port);
-});
+}); 
+
+
+
+
 var io = require('socket.io')(server);
 
 app.get('/', function(req, res){
@@ -42,6 +52,8 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); /
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
+
+app.use(helmet());
 var UserList = [];
 var MessageList=[];
 var Connections=[];
