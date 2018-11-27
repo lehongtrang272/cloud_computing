@@ -10,6 +10,13 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
  
 
+var port = process.env.PORT || 3000;
+	http.listen(port, function(){
+	  console.log('listening on *: '+port);
+	});
+
+ 
+ 
 const mysql = require("mysql");
 
 let cfenv = require('cfenv');
@@ -210,9 +217,7 @@ io.on('connection', function(socket){
    
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-});
+
 
 
 
