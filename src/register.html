@@ -12,19 +12,23 @@
 		<div class="container">
 			<div class="logoLogIn" id="logo"><img src="asset/logo.png"></div>
   		<div class="registerDiv">
-				<form id="Registration" action="">
+				<form id="registration" action="">
 					<label for="u1">Select Username</label><br/>
                     <input id="u1" autocomplete="off" /><br/>
                     <label for="p1">Select Passwort</label><br/>
                     <input type= "password" id="p1" autocomplete="off"/><br/>
                     <label for="p2">Confirm Passwort</label><br/>
                     <input type= "password" id="p2" autocomplete="off" /><br/>
-                    <button>Register</button>
-										<button>Back to Login</button>
-										<input id="filefoto" class="inputFile" type="file" data-multiple-caption="" multiple/>
-										<label id="labelForFile" for="file" class="btn"><span>Select file</span></label>
-										<input id="uploadButton" class="btn btn-info" type="submit" value="Upload"/>
-				</form>
+										<button>Register</button>
+										<br />
+										<a href="login.html">Back to Login</a>
+										<br/>
+										<div class="btn-group">
+										<input id="file" class="inputFile" type="file"/>
+										<label id="labelForFile" for="file"><span class="btn btn-success">Select file</span></label>
+										<button id="uploadButton" class="btn btn-info" type="submit" value="Upload">Upload</button>
+										</div>
+			</form>
 			
 			
 			
