@@ -1,6 +1,6 @@
 applications:
  - name: hannahtrangfellixx
    host: hannahtrangfellixx
-   memory: 512M
+   memory: 1024M
    services:
     - MySQL-Chatroom
