@@ -3,4 +3,4 @@ applications:
    host: hannahtrangfellixx
    memory: 1024M
    services:
-    - MySQL-Chatroom
+    - Db2-h5

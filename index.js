@@ -37,15 +37,15 @@ const appEnv = cfenv.getAppEnv(appEnvOpts);
 let services = appEnv.services;
 
 // The services object is a map named by service so we extract the one for PostgreSQL
-let mysql_services = services["MySQL-Chatroom"]; 
+let mysql_services = services["MySQL-Chatroom___"]; 
 
 // This check ensures there is a services for MySQL databases
-assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services");
+//assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services");
 
 // We now take the first bound MongoDB service and extract it's credentials object
-let credentials = mysql_services[0].credentials;
+//let credentials = mysql_services[0].credentials;
 
-let connectionString = credentials.uri; 
+//let connectionString = credentials.uri; 
 
 
 app.get('/', function(req, res){
