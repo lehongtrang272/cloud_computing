@@ -10,7 +10,14 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
  
 
-const mysql = require("mysql");
+var port = process.env.PORT || 3000;
+	http.listen(port, function(){
+	  console.log('listening on *: '+port);
+	});
+
+ 
+ 
+const mysql = require('mysql');
 
 let cfenv = require('cfenv');
 
@@ -33,12 +40,12 @@ let services = appEnv.services;
 let mysql_services = services["MySQL-Chatroom"]; 
 
 // This check ensures there is a services for MySQL databases
-/* assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services");  */
+assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services");
 
 // We now take the first bound MongoDB service and extract it's credentials object
-/* let credentials = mysql_services[0].credentials;
+let credentials = mysql_services[0].credentials;
 
-let connectionString = credentials.uri; */ 
+let connectionString = credentials.uri; 
 
 
 app.get('/', function(req, res){
@@ -210,9 +217,7 @@ io.on('connection', function(socket){
    
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-});
+
 
 
 
