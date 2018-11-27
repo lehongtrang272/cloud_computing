@@ -1,16 +1,23 @@
 //Authors : Felix Schoch - Id: 761390 ; Hanna Haist - Id: 752731; Trang Le Hong - Id: 310195
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var https = require('https');
+
 
 var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
- 
 
- 
+const option = {
+	key: fs.readFileSync('tls/server1.key'),
+	cert:fs.readFileSync('tls/server_cert1.crt')
+}
 
+var port = process.env.PORT || 443;
+var server = https.createServer(option, app).listen(port, function(){
+  console.log('listening on *: '+port);
+});
+var io = require('socket.io')(server);
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/src/index.html');
@@ -181,13 +188,6 @@ io.on('connection', function(socket){
    
 });
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
-});
-
-
-
-//Returns the current Timestampt as String
 function getTimeStamp(){
 	var date = new Date();
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
