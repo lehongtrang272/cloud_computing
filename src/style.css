@@ -27,13 +27,7 @@ label {
     margin-top: 10px;
     
 }
-#setUsername, #registration {
-    position: absolute;
-    text-align: center;
-    top: 50%;
-    left: 50%;
-    margin: -100px 0 0 -180px;
-}
+
 #setUsername input, #registration input {
     height: 40px;
     width: 30vw;
@@ -42,19 +36,9 @@ label {
     border-radius: 12px;
     margin: 10px;
 }
-@media only screen and (min-width: 1400px) {
-    #setUsername {
-        margin: -100px 0 0 -250px;
-    }
-}
-.loginDiv, .registerDiv {
-    margin-top: 20vh;
-    width: 80vw;
-    height: 60vh;
-    background-image: linear-gradient(-43deg, rgba(120,187,221,0.54) 0%, rgba(255,255,255,0.18) 100%);
-}
 .logoLogIn{
     float: right;
+    right: 30px;
     display: block; 
     clear:both ; 
     margin: 20px; 
@@ -100,11 +84,25 @@ form .inputButton {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
-.container {
+.container1 {
     display: flex;
     justify-content: center;
+    width:100%;
+    height:100vh;
+    background-image: linear-gradient(-43deg, rgba(120,187,221,0.54) 0%, rgba(255,255,255,0.18) 100%);
+
+}
+form{
+    text-align: center;
+    justify-content: center;
+    margin: 30px;
+}
+.loginDiv{
+    margin-top: 100px;
+    width: 40vw;
+    display: inline-block;
 }
 
 #messages { 
@@ -206,23 +204,10 @@ form .inputButton {
     justify-content: center;
     z-index: 1000 !important;
 }
-.blurBackground {
-    -webkit-filter: blur(5px);
-    -moz-filter: blur(5px);
-    -o-filter: blur(5px);
-    -ms-filter: blur(5px);
-    filter: blur(5px);
-    background-color: gray;
-    opacity: 0.5;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    z-index: 1 !important;
-    position: absolute;
-}
-.unhappy {
-    background-color: rgb(238, 232, 238) !important;
-}
-.happy {
-    background-color: rgb(190, 223, 190) !important;
+.headerLogIn{
+    float: right;
+    font-weight: bold;
+    margin: 20px;
+    font-size: 20px;
+    clear: both;
 }
