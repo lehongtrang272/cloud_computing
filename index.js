@@ -27,36 +27,6 @@ var connectionStr = "DATABASE=BLUDB;"+
 			"PWD=fs^tlg7qrv4z236d;"+
 			"PORT=50000"; 
  
-const mysql = require('mysql');
-
-let cfenv = require('cfenv');
-
-// load local VCAP configuration  and service credentials
-let vcapLocal;
-try {
-  vcapLocal = require('./vcap-local.json');
-  console.log("Loaded local VCAP");
-} catch (e) { 
-    // console.log(e)
-}
-
-const appEnvOpts = vcapLocal ? { vcap: vcapLocal} : {}
-const appEnv = cfenv.getAppEnv(appEnvOpts);
-
-// Within the application environment (appenv) there's a services object
-let services = appEnv.services;
-
-// The services object is a map named by service so we extract the one for PostgreSQL
-let mysql_services = services["MySQL-Chatroom___"]; 
-
-// This check ensures there is a services for MySQL databases
-//assert(!util.isUndefined(mysql_services), "Must be bound to compose-for-mysql services");
-
-// We now take the first bound MongoDB service and extract it's credentials object
-//let credentials = mysql_services[0].credentials;
-
-//let connectionString = credentials.uri; 
-
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/src/index.html');
@@ -97,56 +67,66 @@ var UserList = [];
 var MessageList=[];
 var Connections=[];
 io.on('connection', function(socket){
-	ibmdb.open(connectionStr, function (err,conn) {
-
-if (err) return console.log(err);
-
-
-console.log("connected");
-/* conn.query('select 1 from sysibm.sysdummy1', function (err, data) {
-
-if (err) console.log(err);
-
-else console.log(data);
-
-conn.close(function () {
-
-console.log('done');
-
-});
-
-}); */
-
-});
+	login("username","pw");
+	
+	//User is not logged in
+	if(Connections.indexOf(socket)<0){
 	
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', function(msg){
-		newUser = msg.user;
-		socket.user =newUser;
-		//socket.username=msg;
-		if(UserList.indexOf(newUser)<0){
-			UserList.push(newUser);
-			Connections.push(socket);
-			updateUsernames();
-		//message back to the User
-		for(message in MessageList){
-			console.log(MessageList[message]);
-			socket.emit('chat message', MessageList[message]);
-		}
-			socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
-			//broadcast message to all other users
-			socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
-		}else{
-			socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already taken'});
-		}
+		var newUser = msg.user
+		ibmdb.open(connectionStr, function (err,conn) {
+			if (err) return console.log(err);
+			console.log("db_connected");
+			conn.query("select username, passwort from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
+			if (err) console.log(err);
+			else { 
+				//When the user exists
+				if(data.length==1){
+					//Password is correct
+					if(msg.password==data[0]['PASSWORT']){
+						if(UserList.indexOf(newUser)<0){
+							console.log("passwort correct");
+							UserList.push(newUser);
+							Connections.push(socket);
+							console.log(Connections);
+							updateUsernames();
+							console.log(Connections.indexOf(socket));
+							//message back to the User
+							for(message in MessageList){
+								console.log(MessageList[message]);
+								socket.emit('chat message', MessageList[message]);
+							}
+							socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
+							//broadcast message to all other users
+							socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
+						}else{
+							socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already online'});
+						}
+					}
+					else{
+						//Passwort wrong
+						console.log("passwort wrong");
+						socket.emit('onLoginFailure', {"message": 'Password is incorrect'});
+					}
+				}
+				else{
+					//User does not exists
+					console.log("user does not exist");
+					socket.emit('onLoginFailure', {"message": 'User does not exist, please register'});
+				}
+			}
+			conn.close(function () {
+			console.log('done');
+			});}); 
+			});
 
 		
   }); 
+  //User is logged in
+	}else{
 
-  //Send onlineUsers to all Clients
-  function updateUsernames(){
-	io.sockets.emit('get userlist',{"userlist":UserList})
-}
+  
 	
 	//Send a chat Message to all Clients and save the Message in an Array
   socket.on('chat message', function(msg){
@@ -254,8 +234,12 @@ console.log('done');
     uploader.on('abort', (fileInfo) => {
         console.log('Aborted: ', fileInfo);
     });
-   
  
+	} 
+ //Send onlineUsers to all Clients
+  function updateUsernames(){
+	io.sockets.emit('get userlist',{"userlist":UserList})
+}
    
    
 });
@@ -290,4 +274,9 @@ function requireHTTPS(req,res,next){
 function getTimeStamp(){
 	var date = new Date();
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+}
+
+function login(username, passwort){
+	
+		
 }
