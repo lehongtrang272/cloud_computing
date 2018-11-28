@@ -8,16 +8,35 @@
 		<script src="/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="style.css">
   </head>
-  <body>
-		<div class="container">
-			<div class="logoLogIn" id="logo"><img src="asset/logo.png"></div>
-  		<div class="loginDiv">
+  <body>	
+	  <div class="logoLogIn" id="logo"><img src="asset/logo.png"></div>
+		<div class="container1 row">
+		
+  			<div class="loginDiv col-md-6">
+				  <h3 class="headerLogIn">Sign In and start chatting!</h3>
+				  <div class="clearfix"></div>
 				<form id="setUsername" action="">
-					<label for="u">Select your username</label><br/>
+					<label for="u">Username</label><br/>
 					<input id="u" autocomplete="off" /><br/>
-					<button>Start chatting</button>
+					<label for="p">Password</label><br/>
+					<input id="p" autocomplete="off" /><br/>
+					<button class="inputButton">Sign In</button>
 				</form>
-				<p id='errorMessage'></p>
+				<p id='errorMessage1'></p>
+			</div>
+			<div class="loginDiv col-md-6">
+				<h3 class="headerLogIn">..or Register here and join the community!</h3>
+				<div class="clearfix"></div>
+				<form id="registration" action="">
+					<label for="uRegister">Username</label><br/>
+					<input id="uRegister" autocomplete="off" /><br/>
+					<label for="pRegister">Password</label><br/>
+					<input id="pRegister" autocomplete="off" /><br/>
+					<label for="pRegisterConfirm">Confirm password</label><br/>
+					<input id="pRegisterConfirm" autocomplete="off" /><br/>
+					<button clas="inputButton">Register</button>
+				</form>
+				<p id='errorMessage2'></p>
 			</div>
 		</div>
 	<div style="display:none"  class="chatDiv hidden">

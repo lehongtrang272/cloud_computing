@@ -84,7 +84,7 @@ var anzDownloadButton = 0;
 			});   
 			socket.on('onLoginSuccess', function(msg){
 				user=msg.user; //SetUsername
-				$('.loginDiv').addClass("hidden");
+				$('.container1').addClass("hidden");
                 $('.chatDiv').removeClass("hidden").show();
                 $('#logo').removeClass("logoLogIn").addClass("hidden");
 				appendChatMessage( "", "", msg.message+" "+ user,"serverMessage");
@@ -205,7 +205,7 @@ var anzDownloadButton = 0;
 				$("#logoutbutton").on('click', function(){
 				socket.disconnect();
 				console.log("logoutbutton");
-				 $('.loginDiv').removeClass("hidden").show();
+				 $('.container1').removeClass("hidden").show();
 				 $('.chatDiv').addClass("hidden");
 				 $('#logo').addClass("logoLogIn").removeClass("hidden");
 				 $('#u').val()='';
