@@ -9,7 +9,7 @@ var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
-var helmet = require('helmet');
+const helmet = require('helmet');
  
 
 var port = process.env.PORT || 3000;
