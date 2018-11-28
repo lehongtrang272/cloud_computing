@@ -10,6 +10,8 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
 const helmet = require('helmet');
+var xssFilter = require('x-xss-protection')
+
  
 
 var port = process.env.PORT || 3000;
@@ -89,6 +91,7 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redi
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 app.use(helmet()); 
 app.use(requireHTTPS);
+app.use(xssFilter());
 
 var UserList = [];
 var MessageList=[];

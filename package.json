@@ -35,6 +35,7 @@
     "socket.io-file": "^2.0.3",
     "socket.io-file-client": "^2.0.2",
     "socket.io-stream": "^0.9.1",
-    "watson-developer-cloud": "^3.13.1"
+    "watson-developer-cloud": "^3.13.1",
+    "x-xss-protection": "^1.1.0"
   }
 }
