@@ -10,7 +10,7 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
 const helmet = require('helmet');
-var xssFilter = require('x-xss-protection')
+var xssFilter = require('x-xss-protection');
 
  
 
