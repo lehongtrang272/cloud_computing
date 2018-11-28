@@ -67,10 +67,6 @@ var UserList = [];
 var MessageList=[];
 var Connections=[];
 io.on('connection', function(socket){
-	login("username","pw");
-	
-	//User is not logged in
-	if(Connections.indexOf(socket)<0){
 	
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', function(msg){
@@ -89,12 +85,9 @@ io.on('connection', function(socket){
 							console.log("passwort correct");
 							UserList.push(newUser);
 							Connections.push(socket);
-							console.log(Connections);
 							updateUsernames();
-							console.log(Connections.indexOf(socket));
 							//message back to the User
 							for(message in MessageList){
-								console.log(MessageList[message]);
 								socket.emit('chat message', MessageList[message]);
 							}
 							socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
@@ -123,9 +116,44 @@ io.on('connection', function(socket){
 
 		
   }); 
-  //User is logged in
-	}else{
-
+  
+  socket.on('registration', function(msg){
+	  var newUser = msg.user;
+	  ibmdb.open(connectionStr, function (err,conn) {
+			if (err) return console.log(err);
+			console.log("db_connected");
+			conn.query("select username, passwort from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
+			if (err) console.log(err);
+			else { 
+				//When the user does not exists
+				if(data.length==0){
+					//Check Password strength
+					//TODO check numbers and symbols
+					if(msg.passwort.length >3){
+						conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+msg.passwort+"')", function (err, data) {
+						if (err) console.log(err);
+						else{
+							socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
+						}
+						});
+					}	
+					else{
+						socket.emit('onRegistrationFailure', {"message": 'Password is too short, at least 8 letters'});
+						
+					}					
+				}
+				else{
+					//User does exists
+					socket.emit('onRegistrationFailure', {"message": 'Username already exists'});
+					
+				}
+			}
+			conn.close(function () {
+			console.log('done');
+			});}); 
+			});
+	  
+  });
   
 	
 	//Send a chat Message to all Clients and save the Message in an Array
@@ -235,7 +263,7 @@ io.on('connection', function(socket){
         console.log('Aborted: ', fileInfo);
     });
  
-	} 
+	 
  //Send onlineUsers to all Clients
   function updateUsernames(){
 	io.sockets.emit('get userlist',{"userlist":UserList})

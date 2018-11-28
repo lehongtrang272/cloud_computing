@@ -21,6 +21,7 @@ var anzDownloadButton = 0;
 			$("#logoutbutton").addClass("hidden");
 			
 			//Handle File Upload
+			
 			var uploader = new SocketIOFileClient(socket);
 			var form = document.getElementById('fileUploadForm');
 			 
@@ -76,12 +77,59 @@ var anzDownloadButton = 0;
 					});
 				
 			};
-						
+				
+
+
+/*
+
+			//Handle File Upload
+			var pictureUploader = new SocketIOFileClient(socket);
+			var registerForm = document.getElementById('registration');
+			 
+			pictureUploader.on('start', function(fileInfo) {
+				console.log('Start uploading', fileInfo);
+				$('#uploadButton').css("background-color","#17a2b8");
+				$('#uploadButton').css("border-color-color","#17a2b8");
+				$('#uploadButton').css("font-size","0.9rem");
+				$('#uploadButton').val("Uploading");
+			});
+			pictureUploader.on('stream', function(fileInfo) {
+				console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
+			});
+			pictureUploader.on('complete', function(fileInfo) {
+				console.log('Upload Complete', fileInfo);
+				$('#uploadButton').css("background-color","green");
+				$('#uploadButton').css("border-color","green");
+				$('#uploadButton').css("font-size","1rem");
+				$('#uploadButton').val("Upload");
+			});
+			pictureUploader.on('error', function(err) {
+				console.log('Error!', err);
+			});
+			pictureUploader.on('abort', function(fileInfo) {
+				console.log('Aborted: ', fileInfo);
+			});
+			 //Upload Media File
+			registerForm.onsubmit = function(ev) {
+				ev.preventDefault();
+			
+					var picture = document.getElementById('profilePicture');
+					var uploadIds = pictureUploader.upload(picture, {
+						data: "data"
+					});
+				
+			};
+
+*/
+			
 			//Login Process
 			$('#setUsername').submit(function(){			
 				socket.emit('onLogin', {"user": $('#u').val(), "password": $('#p').val()});
 				return false;
-			});   
+			});  
+
+			
+			
 			socket.on('onLoginSuccess', function(msg){
 				user=msg.user; //SetUsername
 				$('.container1').addClass("hidden");
@@ -95,6 +143,29 @@ var anzDownloadButton = 0;
 			socket.on('onLoginFailure', function(msg){
 				$('#errorMessage1').text(msg.message);
 			});
+			
+			$('#registration').submit(function(){	
+				if($('#pRegister').val() == $('#pRegisterConfirm').val()){
+					socket.emit('registration', {"user": $('#uRegister').val(), "passwort": $('#pRegister').val()});
+				}
+				else{
+					$('#errorMessage2').text("Passwords do not match");
+				}
+				return false;
+			});  
+			
+			socket.on('onRegistrationSuccess', function(msg){
+				$('#errorMessage2').text(msg.message);
+				$('#uRegister').val('');
+				$('#pRegister').val('');
+				$('#pRegisterConfirm').val('');
+				$('#u').focus();
+			});
+			
+			socket.on('onRegistrationFailure', function(msg){
+				$('#errorMessage2').text(msg.message);
+			});
+			
 			
 			//Handle chat messages
             $('#chatForm').submit(function(){
