@@ -10,7 +10,6 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
 const helmet = require('helmet');
-var xssFilter = require('x-xss-protection');
 
  
 
@@ -59,10 +58,14 @@ app.use(express.static(path.join(__dirname, 'src')));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
-app.use(helmet()); 
+//security setting for hsts, x-xxs & not to sniff MIME type
+const hundredEightyDaysInSeconds = 15552000 
+app.use(helmet.hsts({
+  maxAge: hundredEightyDaysInSeconds
+})) 
 app.use(requireHTTPS);
-app.use(xssFilter());
-
+app.use(helmet.xssFilter());
+app.use(helmet.noSniff())
 var UserList = [];
 var MessageList=[];
 var Connections=[];

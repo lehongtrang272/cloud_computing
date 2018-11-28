@@ -102,7 +102,9 @@ form{
 .loginDiv{
     margin-top: 100px;
     width: 40vw;
+    height: 80%;
     display: inline-block;
+    border-right: 3px solid white;
 }
 
 #messages { 
