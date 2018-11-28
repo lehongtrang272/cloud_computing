@@ -9,6 +9,7 @@ var path = require('path');
 const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
+var helmet = require('helmet');
  
 
 var port = process.env.PORT || 3000;
@@ -72,7 +73,7 @@ app.get('/socket.io-file-client.js', (req, res, next) => {
 
 app.use(express.static('data'));
 app.use(express.static(path.join(__dirname, 'src')));
-app.use(function(req,res,next){
+/*app.use(function(req,res,next){
 	if(req.secure || process.env.BLUEMIX_REGION === undefined){
 		next();
 	} else {
@@ -80,11 +81,14 @@ app.use(function(req,res,next){
 		res.redirect('https://'+req.headers.host + req.url);
 	}
 })
+*/
 //Routing to src folder
 
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
+app.use(helmet()); 
+app.use(requireHTTPS);
 
 var UserList = [];
 var MessageList=[];
@@ -254,7 +258,12 @@ console.log('done');
 });
 
 
-
+function requireHTTPS(req,res,next){
+	if( req.headers && req.headers.$wssp === "80"){
+		return res.redirect('https://'+ req.get('host')+req.url);
+	}
+	next();
+}
 
 
 //Returns the current Timestampt as String
