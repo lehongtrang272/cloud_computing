@@ -12,6 +12,12 @@ var ibmdb = require('ibm_db');
 const helmet = require('helmet');
 
  
+//security setting for hsts, x-xxs & not to sniff MIME type
+const hundredEightyDaysInSeconds = 15552000 
+app.use(helmet());
+app.use(helmet.hsts({
+  maxAge: hundredEightyDaysInSeconds
+})) 
 
 var port = process.env.PORT || 3000;
 	http.listen(port, function(){
@@ -58,14 +64,7 @@ app.use(express.static(path.join(__dirname, 'src')));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
-//security setting for hsts, x-xxs & not to sniff MIME type
-const hundredEightyDaysInSeconds = 15552000 
-app.use(helmet.hsts({
-  maxAge: hundredEightyDaysInSeconds
-})) 
-app.use(requireHTTPS);
-app.use(helmet.xssFilter());
-app.use(helmet.noSniff())
+
 var UserList = [];
 var MessageList=[];
 var Connections=[];
