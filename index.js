@@ -12,6 +12,7 @@ var ibmdb = require('ibm_db');
 const helmet = require('helmet');
 //const bcrypt = require('bcrypt');
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
+var md5 = require('md5'); 
 	
 
 
@@ -96,7 +97,7 @@ io.on('connection', function(socket){
 
 					
 					//Password is correct
-					if(msg.password==data[0]['PASSWORT']){
+					if(md5(msg.password)==data[0]['PASSWORT']){
 						if(UserList.indexOf(newUser)<0){
 							console.log("passwort correct");
 							UserList.push(newUser);
@@ -134,7 +135,7 @@ io.on('connection', function(socket){
   }); 
   
   socket.on('registration', function(msg){
-	
+	  	
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -147,8 +148,8 @@ io.on('connection', function(socket){
 					//Check Password strength
 					//TODO check numbers and symbols
 					if(msg.passwort.length >3){
-						
-							conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+msg.passwort+"')", function (err, data) {
+							var hashedpw = md5(msg.password);
+							conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
 								if (err) console.log(err);
 								else{
 									socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
