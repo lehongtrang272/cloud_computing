@@ -10,7 +10,7 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
 const helmet = require('helmet');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 	
 
