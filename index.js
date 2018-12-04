@@ -81,7 +81,7 @@ var MessageList=[];
 var Connections=[];
 io.on('connection', function(socket){
 	
-	test();
+	
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
@@ -228,7 +228,7 @@ io.on('connection', function(socket){
    
 	
    function test(){ 
-	   
+
 	var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
 
 	var params = {
