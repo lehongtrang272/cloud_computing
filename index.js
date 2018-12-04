@@ -148,7 +148,7 @@ io.on('connection', function(socket){
 					//Check Password strength
 					//TODO check numbers and symbols
 					if(msg.passwort.length >3){
-							var hashedpw = md5(msg.password);
+							var hashedpw = md5(msg.passwort);
 							conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
 								if (err) console.log(err);
 								else{
