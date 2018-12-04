@@ -134,22 +134,15 @@ io.on('connection', function(socket){
   
   socket.on('registration', function(msg){
 	
-	/*var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
+	var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
 
 	var params = {
 	  images_file: images_file, 
 	};
 
-	visualRecognition.detectFaces(params, function(err, response) {
-		if (err) { 
-		  console.log("Kein Gesicht");  
-		  console.log(err);
-		} else {
-		  console.log("Gesicht");  
-		  console.log(JSON.stringify(response, null, 2))
-		}
-	  });
-	 */ 
+	
+	 
+	visualRecognition.detectFaces(params); 
 
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
@@ -240,7 +233,15 @@ io.on('connection', function(socket){
    
 
 
-
+   visualRecognition.detectFaces(params, function(err, response) {
+	if (err) { 
+	  console.log("Kein Gesicht");  
+	  console.log(err);
+	} else {
+	  console.log("Gesicht");  
+	  console.log(JSON.stringify(response, null, 2))
+	}
+  });
 
    
    
