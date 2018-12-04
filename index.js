@@ -229,7 +229,8 @@ io.on('connection', function(socket){
 	
    function test(){ 
 
-	var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
+	
+	var images_file= fs.createReadStream(__dirname+'/facerecognitiontest/gesicht.jpg');
 
 	var params = {
 	  images_file: images_file, 
