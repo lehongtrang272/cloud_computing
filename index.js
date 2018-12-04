@@ -10,6 +10,11 @@ const SocketIOFile = require('socket.io-file');
 var fs = require('fs');
 var ibmdb = require('ibm_db');
 const helmet = require('helmet');
+const bcrypt = require('bcrypt');
+var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
+	
+
+
 
  
 //security setting for hsts, x-xxs & not to sniff MIME type
@@ -32,6 +37,12 @@ var connectionStr = "DATABASE=BLUDB;"+
 			"PWD=fs^tlg7qrv4z236d;"+
 			"PORT=50000"; 
  
+var visualRecognition = new VisualRecognitionV3({
+	version: '2018-03-19',
+	iam_apikey: 'VLgTIgrFOnXC3MxqFS08yPDOAW0l_I0qQIImOFc2nNNY',
+	url: 'https://gateway.watsonplatform.net/visual-recognition/api'
+});	
+
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/src/index.html');
@@ -71,7 +82,7 @@ var Connections=[];
 io.on('connection', function(socket){
 	
 	//When a users sets his username, the name is safed to a list and ever online user is notified
-	socket.on('onLogin', function(msg){
+	socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -81,6 +92,8 @@ io.on('connection', function(socket){
 			else { 
 				//When the user exists
 				if(data.length==1){
+
+					
 					//Password is correct
 					if(msg.password==data[0]['PASSWORT']){
 						if(UserList.indexOf(newUser)<0){
@@ -120,6 +133,23 @@ io.on('connection', function(socket){
   }); 
   
   socket.on('registration', function(msg){
+	
+	var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
+
+	var params = {
+	  images_file: images_file, 
+	};
+
+	visualRecognition.detectFaces(params, function(err, response) {
+		if (err) { 
+		  console.log("Kein Gesicht");  
+		  console.log(err);
+		} else {
+		  console.log("Gesicht");  
+		  console.log(JSON.stringify(response, null, 2))
+		}
+	  });
+
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -132,12 +162,14 @@ io.on('connection', function(socket){
 					//Check Password strength
 					//TODO check numbers and symbols
 					if(msg.passwort.length >3){
-						conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+msg.passwort+"')", function (err, data) {
-						if (err) console.log(err);
-						else{
-							socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
-						}
-						});
+						
+							conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+msg.passwort+"')", function (err, data) {
+								if (err) console.log(err);
+								else{
+									socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
+								}
+								});
+						
 					}	
 					else{
 						socket.emit('onRegistrationFailure', {"message": 'Password is too short, at least 8 letters'});
@@ -204,6 +236,10 @@ io.on('connection', function(socket){
    });
    
    
+   
+
+
+
 
    
    
