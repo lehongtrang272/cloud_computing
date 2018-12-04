@@ -134,7 +134,7 @@ io.on('connection', function(socket){
   
   socket.on('registration', function(msg){
 	
-	var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
+	/*var images_file= fs.createReadStream('/facerecognitiontest/gesicht.jpg');
 
 	var params = {
 	  images_file: images_file, 
@@ -149,6 +149,7 @@ io.on('connection', function(socket){
 		  console.log(JSON.stringify(response, null, 2))
 		}
 	  });
+	 */ 
 
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
