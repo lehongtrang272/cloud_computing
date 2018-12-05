@@ -88,20 +88,19 @@ var anzDownloadButton = 0;
 			 
 			pictureUploader.on('start', function(fileInfo) {
 				console.log('Start uploading', fileInfo);
-				$('#uploadButton').css("background-color","#17a2b8");
-				$('#uploadButton').css("border-color-color","#17a2b8");
-				$('#uploadButton').css("font-size","0.9rem");
-				$('#uploadButton').val("Uploading");
+				$('#profilePicture').css("background-color","#17a2b8");
+				$('#profilePicture').css("border-color-color","#17a2b8");
+				$('#profilePicture').css("font-size","0.9rem");
+				$('#selectPictureSpan').text("Uploading");
 			});
 			pictureUploader.on('stream', function(fileInfo) {
 				console.log('Streaming... sent ' + fileInfo.sent + ' bytes.');
 			});
 			pictureUploader.on('complete', function(fileInfo) {
 				console.log('Upload Complete', fileInfo);
-				$('#uploadButton').css("background-color","green");
-				$('#uploadButton').css("border-color","green");
-				$('#uploadButton').css("font-size","1rem");
-				$('#uploadButton').val("Upload");
+				$('#profilePicture').css("background-color","green");
+				$('#profilePicture').css("border-color","green");
+				$('#profilePicture').css("font-size","1rem");
 			});
 			pictureUploader.on('error', function(err) {
 				console.log('Error!', err);
@@ -113,11 +112,11 @@ var anzDownloadButton = 0;
 			registerForm.onsubmit = function(ev) {
 				ev.preventDefault();
 			
-					var picture = document.getElementById('profilePicture');
-					var uploadIds = pictureUploader.upload(picture, {
-						data: { "registration":1
-								}
-					});
+					// var picture = document.getElementById('profilePicture');
+					// var uploadIds = pictureUploader.upload(picture, {
+						// data: { "registration":1
+								// }
+					// });
 				
 			};
 
@@ -145,8 +144,20 @@ var anzDownloadButton = 0;
 			});
 			
 			$('#registration').submit(function(){	
+				var pictureUpload = 0;
+				
+					
 				if($('#pRegister').val() == $('#pRegisterConfirm').val()){
-					socket.emit('registration', {"user": $('#uRegister').val(), "passwort": $('#pRegister').val()});
+					if($('#profilePicture').val() != ''){
+					var picture = document.getElementById('profilePicture');
+						pictureUpload = 1;
+						var uploadIds = pictureUploader.upload(picture, {
+							data: { "registration":1, "user": $('#uRegister').val(), "passwort": $('#pRegister').val(), "pictureUpload": pictureUpload
+									}
+						});
+				}else{
+					socket.emit('registration', {"user": $('#uRegister').val(), "passwort": $('#pRegister').val(), "pictureUpload": pictureUpload});
+				}
 				}
 				else{
 					$('#errorMessage2').text("Passwords do not match");
@@ -160,6 +171,10 @@ var anzDownloadButton = 0;
 				$('#pRegister').val('');
 				$('#pRegisterConfirm').val('');
 				$('#u').focus();
+				$('#profilePicture').val('');
+				document.getElementById('registration').reset();
+				$('#selectPictureSpan').text("Select Picture");
+				
 			});
 			
 			socket.on('onRegistrationFailure', function(msg){

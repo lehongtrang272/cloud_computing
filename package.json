@@ -20,6 +20,7 @@
     "browserify-fs": "^1.0.0",
     "cfenv": "^1.1.0",
     "clientside-require": "^4.7.2",
+    "cluster": "^0.7.7",
     "delivery": "0.0.6",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
@@ -29,6 +30,7 @@
     "jquery": "^3.3.1",
     "md5": "^2.2.1",
     "mysql": "^2.16.0",
+    "os": "^0.1.1",
     "popper.js": "^1.14.5",
     "request": "^2.88.0",
     "socket.io": "^2.1.1",
@@ -36,6 +38,7 @@
     "socket.io-file": "^2.0.3",
     "socket.io-file-client": "^2.0.2",
     "socket.io-stream": "^0.9.1",
+    "wait-until": "0.0.2",
     "watson-developer-cloud": "^3.13.1",
     "x-xss-protection": "^1.1.0"
   }

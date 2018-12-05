@@ -13,11 +13,21 @@ const helmet = require('helmet');
 //const bcrypt = require('bcrypt');
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var md5 = require('md5'); 
-	
+var waitUntil = require('wait-until');
+
+const cluster = require('cluster')
+const os = require('os')	
+
+if (cluster.isMaster) {
+    const cpuCount = os.cpus().length
+    for (let i = 0; i < cpuCount; i++) {
+        cluster.fork()
+    }
+	console.log("Master");
+}
+else {
 
 
-
- 
 //security setting for hsts, x-xxs & not to sniff MIME type
 const hundredEightyDaysInSeconds = 15552000 
 app.use(helmet());
@@ -83,8 +93,9 @@ var Connections=[];
 var registrationPicture = false;
 var picturePath = '';
 var pictureHasFace = false;
+var visualRecognitionDone = false;
 io.on('connection', function(socket){
-	
+	console.log(cluster.worker.process.pid);
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
@@ -137,7 +148,13 @@ io.on('connection', function(socket){
   }); 
   
   socket.on('registration', function(msg){
-	  	
+	  console.log("Registration without Picture");
+	  registration(msg, false);	
+	  
+  });
+  
+  
+  function registration(msg, profilePicture){
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -152,27 +169,13 @@ io.on('connection', function(socket){
 					//Check Password strength
 					//TODO check numbers and symbols
 					
-					var images_file= fs.createReadStream(__dirname+picturePath);
-
-					var params = {
-					  images_file: images_file, 
-					};
-					
-					visualRecognition.detectFaces(params, function(err, response) {
-						console.log(JSON.stringify(response, null, 2));
-						console.log("Faces: "+response.images[0].faces.length);
-						if(response.images[0].faces.length > 0){
-							pictureHasFace = true;
-							console.log("pictureHasFace");
-						}
-						console.log(pictureHasFace);
-				  });
-				  sleep(1000);
-					if(registrationPicture && pictureHasFace){
+				//console.log("pictureUpload: "+msg.pictureUpload);
+				console.log("Bool Picturehasfaces: "+pictureHasFace);
+					if(pictureHasFace){
 						
 						if(msg.passwort.length >7){
 								var hashedpw = md5(msg.passwort);
-								console.log(hashedpw + msg.passwort);
+								//console.log(hashedpw + msg.passwort);
 								conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
 									if (err) console.log(err);
 									else{
@@ -184,7 +187,8 @@ io.on('connection', function(socket){
 						else{
 							socket.emit('onRegistrationFailure', {"message": 'Password is too short, at least 8 letters'});
 							
-					}	}
+					}	
+					}
 					else{
 						// console.log("registrationPicture: "+registrationPicture);
 						// console.log("registrationpicture:" +pictureHasFace);
@@ -199,11 +203,10 @@ io.on('connection', function(socket){
 				}
 			}
 			conn.close(function () {
-			console.log('done');
+			//console.log('done');
 			});}); 
 			});
-	  
-  });
+  }
   
 	
 	//Send a chat Message to all Clients and save the Message in an Array
@@ -250,24 +253,6 @@ io.on('connection', function(socket){
 	  updateUsernames();
 	  socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
-   
-   
-   
-
-   
-
-   
-	
-   function facerecognition(){ 
-
-	
-  }
-  
-
-   
-   
-   
-   
    
    var uploader = new SocketIOFile(socket, {
         // uploadDir: {			// multiple directories
@@ -325,6 +310,34 @@ io.on('connection', function(socket){
 		else{
 			picturePath = '/data/'+fileInfo.name;
 			console.log("Pfad: "+fileInfo.name);
+			var images_file= fs.createReadStream(__dirname+picturePath);
+
+			var params = {
+			  images_file: images_file, 
+			};
+			visualRecognitionDone = false;
+			visualRecognition.detectFaces(params, function(err, response) {
+				//console.log(JSON.stringify(response, null, 2));
+				//console.log("Faces: "+response.images[0].faces.length);
+				if(response.images[0].faces.length > 0){
+					pictureHasFace = true;
+					console.log("pictureHasFace");
+				}
+				visualRecognitionDone = true;
+				//console.log(pictureHasFace);
+		  });
+		  waitUntil()
+			.interval(500)
+			.times(10)
+			.condition(function() {
+				return (visualRecognitionDone ? true : false);
+			})
+			.done(function(result) {
+				console.log("Start Registration with profilePicture");
+				registration(fileInfo.data, true);	
+			});
+
+			
 			
 		}
     });
@@ -343,6 +356,12 @@ io.on('connection', function(socket){
    
    
 });
+}
+
+cluster.on('exit', (worker) => {
+    console.log('mayday! mayday! worker', worker.id, ' is no more!')
+    cluster.fork()
+})
 
 /**
  * Parse a base 64 image and return the extension and buffer
