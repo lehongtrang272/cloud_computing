@@ -14,11 +14,12 @@ const helmet = require('helmet');
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
 var md5 = require('md5'); 
 var waitUntil = require('wait-until');
-
+var compress_images = require('compress-images')
+ 
 const cluster = require('cluster')
 const os = require('os')	
 
-if (cluster.isMaster) {
+if (false && cluster.isMaster) {
     const cpuCount = os.cpus().length
     for (let i = 0; i < cpuCount; i++) {
         cluster.fork()
@@ -72,6 +73,7 @@ app.get('/socket.io-file-client.js', (req, res, next) => {
 
 app.use(express.static('data'));
 app.use(express.static(path.join(__dirname, 'src')));
+app.use(express.static(path.join(__dirname, 'profilePicture')));
 /*app.use(function(req,res,next){
 	if(req.secure || process.env.BLUEMIX_REGION === undefined){
 		next();
@@ -95,14 +97,14 @@ var picturePath = '';
 var pictureHasFace = false;
 var visualRecognitionDone = false;
 io.on('connection', function(socket){
-	console.log(cluster.worker.process.pid);
+	//console.log(cluster.worker.process.pid);
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
 			console.log("db_connected");
-			conn.query("select username, passwort from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
+			conn.query("select username, passwort, profilePicture from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
 			if (err) console.log(err);
 			else { 
 				//When the user exists
@@ -112,8 +114,9 @@ io.on('connection', function(socket){
 					//Password is correct
 					if(md5(msg.password)==data[0]['PASSWORT']){
 						if(UserList.indexOf(newUser)<0){
-							console.log("passwort correct");
-							UserList.push(newUser);
+							console.log(data[0]['PROFILEPICTURE']);
+							//UserList.push(newUser);
+							UserList.push({'user': newUser, 'profilePicture': data[0]['PROFILEPICTURE']});
 							Connections.push(socket);
 							updateUsernames();
 							//message back to the User
@@ -149,12 +152,12 @@ io.on('connection', function(socket){
   
   socket.on('registration', function(msg){
 	  console.log("Registration without Picture");
-	  registration(msg, false);	
+	  registration(msg, false, "");	
 	  
   });
   
   
-  function registration(msg, profilePicture){
+  function registration(msg, profilePicture, picturePath){
 	  var newUser = msg.user;
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -176,12 +179,23 @@ io.on('connection', function(socket){
 						if(msg.passwort.length >7){
 								var hashedpw = md5(msg.passwort);
 								//console.log(hashedpw + msg.passwort);
-								conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
+								conn.query("insert into MDS89277.loginData (username, passwort, profilePicture)values('"+newUser+"', '"+hashedpw+"', '"+newUser+".jpg')", function (err, data) {
 									if (err) console.log(err);
 									else{
+											
+										compress_images(picturePath, __dirname+'/profilePicture/', {compress_force: false, statistic: true, autoupdate: true}, false,
+																{jpg: {engine: 'mozjpeg', command: ['-quality', '60']}},
+																{png: {engine: 'pngquant', command: ['--quality=20-50']}},
+																{svg: {engine: 'svgo', command: '--multipass'}},
+																{gif: {engine: 'gifsicle', command: ['--colors', '64', '--use-col=web']}}, function(error, completed, statistic){
+										console.log('-------------');
+										console.log('error: '+error);
+										console.log('completed: '+completed);
+										console.log('static: '+statistic.path_out_new);
+										});
 										socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
-									}
-									});
+											}
+											});
 							
 						}	
 						else{
@@ -265,6 +279,7 @@ io.on('connection', function(socket){
         chunkSize: 10240,							// default is 10240(1KB)
         transmissionDelay: 0,						// delay of each transmission, higher value saves more cpu resources, lower upload speed. default is 0(no delay)
         overwrite: true 							// overwrite file if exists, default is true.
+		
     });
     uploader.on('start', (fileInfo) => {
 		registrationPicture = false;
@@ -308,8 +323,11 @@ io.on('connection', function(socket){
 		}
 		}
 		else{
+			
 			picturePath = '/data/'+fileInfo.name;
-			console.log("Pfad: "+fileInfo.name);
+			//console.log("Pfad: "+fileInfo.name);
+			
+			
 			var images_file= fs.createReadStream(__dirname+picturePath);
 
 			var params = {
@@ -333,9 +351,20 @@ io.on('connection', function(socket){
 				return (visualRecognitionDone ? true : false);
 			})
 			.done(function(result) {
-				console.log("Start Registration with profilePicture");
-				registration(fileInfo.data, true);	
+					if (!fs.existsSync('./profilePicture')){
+						fs.mkdirSync('./profilePicture');
+					}
+					fs.rename(__dirname+picturePath, __dirname+'/profilePicture/'+fileInfo.data.user+'.jpg', (err) => {
+										  if (err) throw err;
+										  console.log('source.txt was copied to destination.txt');
+																												
+										});	
+					
+								console.log("Start Registration with profilePicture");
+								registration(fileInfo.data, true, __dirname+'/profilePicture/'+fileInfo.data.user+'.jpg');	
 			});
+			
+			
 
 			
 			

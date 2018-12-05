@@ -272,7 +272,8 @@ var anzDownloadButton = 0;
 				var html='';
 				//Add userlist to sidebar
 				for (i=0; i< userlist.length;i++){
-					html+= '<li class="list-group-item"><button class="onlineUser" onclick="selectUser(this.value);" value="'+userlist[i]+'" >'+userlist[i]+'</button>'
+					console.log(userlist[i].profilePicture);
+					html+= '<li class="list-group-item"><img src="'+userlist[i].profilePicture+'"height="42" width="42"><button class="onlineUser" onclick="selectUser(this.value);" value="'+userlist[i].user+'" >'+userlist[i].user+'</button>'
 					
 					+'</li>';
 				}
