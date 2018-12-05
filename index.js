@@ -80,9 +80,11 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 var UserList = [];
 var MessageList=[];
 var Connections=[];
+var registrationPicture = false;
+var picturePath = '';
+var pictureHasFace = false;
 io.on('connection', function(socket){
 	
-	test();
 	//When a users sets his username, the name is safed to a list and ever online user is notified
 	socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
@@ -141,27 +143,54 @@ io.on('connection', function(socket){
 			if (err) return console.log(err);
 			console.log("db_connected");
 			conn.query("select username, passwort from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
+			
+			
 			if (err) console.log(err);
 			else { 
 				//When the user does not exists
 				if(data.length==0){
 					//Check Password strength
 					//TODO check numbers and symbols
-					if(msg.passwort.length >3){
-							var hashedpw = md5(msg.passwort);
-							console.log(hashedpw + msg.passwort);
-							conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
-								if (err) console.log(err);
-								else{
-									socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
-								}
-								});
+					
+					var images_file= fs.createReadStream(__dirname+picturePath);
+
+					var params = {
+					  images_file: images_file, 
+					};
+					
+					visualRecognition.detectFaces(params, function(err, response) {
+						console.log(JSON.stringify(response, null, 2));
+						console.log("Faces: "+response.images[0].faces.length);
+						if(response.images[0].faces.length > 0){
+							pictureHasFace = true;
+							console.log("pictureHasFace");
+						}
+						console.log(pictureHasFace);
+				  });
+				  sleep(1000);
+					if(registrationPicture && pictureHasFace){
 						
-					}	
+						if(msg.passwort.length >7){
+								var hashedpw = md5(msg.passwort);
+								console.log(hashedpw + msg.passwort);
+								conn.query("insert into MDS89277.loginData (username, passwort)values('"+newUser+"', '"+hashedpw+"')", function (err, data) {
+									if (err) console.log(err);
+									else{
+										socket.emit('onRegistrationSuccess', {'message': 'Registration successfull, please Login now'});
+									}
+									});
+							
+						}	
+						else{
+							socket.emit('onRegistrationFailure', {"message": 'Password is too short, at least 8 letters'});
+							
+					}	}
 					else{
-						socket.emit('onRegistrationFailure', {"message": 'Password is too short, at least 8 letters'});
-						
-					}					
+						// console.log("registrationPicture: "+registrationPicture);
+						// console.log("registrationpicture:" +pictureHasFace);
+						// console.log("no face");
+						socket.emit('onRegistrationFailure', {"message": 'Profilepicture has no face'});
+					}
 				}
 				else{
 					//User does exists
@@ -229,24 +258,10 @@ io.on('connection', function(socket){
 
    
 	
-   function test(){ 
+   function facerecognition(){ 
 
 	
-	var images_file= fs.createReadStream(__dirname+'/facerecognitiontest/gesicht.jpg');
-
-	var params = {
-	  images_file: images_file, 
-	};
-
-	visualRecognition.detectFaces(params, function(err, response) {
-	if (err) { 
-	  console.log("Kein Gesicht");  
-	  console.log(err);
-	} else {
-	  console.log("Gesicht");  
-	  console.log(JSON.stringify(response, null, 2))
-	}
-  });}
+  }
   
 
    
@@ -267,11 +282,15 @@ io.on('connection', function(socket){
         overwrite: true 							// overwrite file if exists, default is true.
     });
     uploader.on('start', (fileInfo) => {
+		registrationPicture = false;
         console.log('Start uploading');
         console.log(fileInfo);
     });
     uploader.on('stream', (fileInfo) => {
         console.log(`${fileInfo.wrote} / ${fileInfo.size} byte(s)`);
+		if(fileInfo.data.registration == 1){
+			registrationPicture = true;
+		}
     });
     uploader.on('complete', (fileInfo) => {
         console.log('Upload Complete.');
@@ -279,6 +298,7 @@ io.on('connection', function(socket){
 		//Message to all clients
 		console.log(fileInfo.data);
 		console.log(fileInfo.data.privateMessage);
+		if(fileInfo.data.registration == 0){
 		if(fileInfo.data.privateMessage == 0){
 		 io.emit('chat message', {"user": socket.user, "message": fileInfo.name, "timeStamp": getTimeStamp(), "success":1, "type": "mediaFile"});
 		}else{
@@ -300,6 +320,12 @@ io.on('connection', function(socket){
 			  else{
 				  socket.emit('private message',{"message":"", "sender":socket.user, "receiver":sendTo,"success":0,"timestamp":getTimeStamp()});
 			  }
+		}
+		}
+		else{
+			picturePath = '/data/'+fileInfo.name;
+			console.log("Pfad: "+fileInfo.name);
+			
 		}
     });
     uploader.on('error', (err) => {
@@ -353,4 +379,8 @@ function getTimeStamp(){
 function login(username, passwort){
 	
 		
+}
+
+function sleep(millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
 }

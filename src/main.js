@@ -73,14 +73,14 @@ var anzDownloadButton = 0;
 					var fileEl = document.getElementById('file');
 					var uploadIds = uploader.upload(fileEl, {
 						data: { "privateMessage":privateMessage,
-								"sendTo": sendTo}
+								"sendTo": sendTo,
+								"registration":0
+								}
 					});
 				
 			};
 				
 
-
-/*
 
 			//Handle File Upload
 			var pictureUploader = new SocketIOFileClient(socket);
@@ -115,12 +115,12 @@ var anzDownloadButton = 0;
 			
 					var picture = document.getElementById('profilePicture');
 					var uploadIds = pictureUploader.upload(picture, {
-						data: "data"
+						data: { "registration":1
+								}
 					});
 				
 			};
 
-*/
 			
 			//Login Process
 			$('#setUsername').submit(function(){			
@@ -217,7 +217,7 @@ var anzDownloadButton = 0;
 				
 				if(type.includes("mediaFile")) {
 					if(msg.success == 1){
-					$('#messages').append($('<li class="'+type+'">:').text(msg.timeStamp+" "+msg.user+':').append($('<a href="http://localhost:8080/'+msg.message+'" download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
+					$('#messages').append($('<li class="'+type+'">:').text(msg.timeStamp+" "+msg.user+':').append($('<a href='+window.location.origin+'/'+msg.message+' download="'+msg.message+'" class=mediaDownload'+anzDownloadButton+' value="'+msg.message+'">').text(msg.message)));
 					anzDownloadButton++;
 					}
 					else{
