@@ -182,10 +182,8 @@ io.on('connection', function(socket){
 						
 						if(msg.password.length >7){
 								//createHashSalt
-								var salt = bcrypt.genSaltSync(10);
-								var hashedpw = bcrypt.hashSync(msg.password,salt, function(err,hash){
-									console.log(err);
-								});
+								var salt = bcrypt.genSaltSync(8);
+								var hashedpw = bcrypt.hashSync(msg.password,salt);
 								console.log(hashedpw);
 								//TODO: store hash in password DB 
 								//console.log(hashedpw + msg.password);
