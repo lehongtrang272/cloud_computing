@@ -14,6 +14,7 @@
   "author": "Hannah Haist (ID:752731), Trang Le Hong (ID:310195), Felix Schoch (ID:761390)",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "bootstrap": "^4.1.3",
     "browserify": "^16.2.3",
@@ -27,7 +28,7 @@
     "express": "^4.16.4",
     "fs": "0.0.1-security",
     "helmet": "^3.15.0",
-    "ibm_db": "^2.4.1",
+    "ibm_db": "^2.5.0",
     "jquery": "^3.3.1",
     "md5": "^2.2.1",
     "mysql": "^2.16.0",

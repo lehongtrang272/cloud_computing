@@ -12,7 +12,7 @@ var ibmdb = require('ibm_db');
 const helmet = require('helmet');
 //const bcrypt = require('bcrypt');
 var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
-var md5 = require('md5'); 
+var bcrypt = require("bcryptjs"); 
 var waitUntil = require('wait-until');
 var compress_images = require('compress-images')
  
@@ -41,7 +41,7 @@ var port = process.env.PORT || 3000;
 	  console.log('listening on *: '+port);
 	});
 
- 
+
  
 var connectionStr = "DATABASE=BLUDB;"+
 			"HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;"+
@@ -112,7 +112,11 @@ io.on('connection', function(socket){
 
 					
 					//Password is correct
-					if(md5(msg.password)==data[0]['PASSWORT']){
+					if(bcrypt.compare(msg.password,data[0]['PASSWORT'],function(err, res){
+						if(err){
+							console.log(err)
+							}
+						})){
 						if(UserList.indexOf(newUser)<0){
 							console.log(data[0]['PROFILEPICTURE']);
 							//UserList.push(newUser);
@@ -171,14 +175,19 @@ io.on('connection', function(socket){
 				if(data.length==0){
 					//Check Password strength
 					//TODO check numbers and symbols
-					
+					var hashedpw = bcrypt.hash(msg.password,10, function(err,hash){
+						console.log(err);
+					});
+					console.log(hashedpw);
 				//console.log("pictureUpload: "+msg.pictureUpload);
 				console.log("Bool Picturehasfaces: "+pictureHasFace);
 					if(pictureHasFace){
 						
-						if(msg.passwort.length >7){
-								var hashedpw = md5(msg.passwort);
-								//console.log(hashedpw + msg.passwort);
+						if(msg.password.length >7){
+								//createHashSalt
+								
+								//TODO: store hash in password DB 
+								//console.log(hashedpw + msg.password);
 								conn.query("insert into MDS89277.loginData (username, passwort, profilePicture)values('"+newUser+"', '"+hashedpw+"', '"+newUser+".jpg')", function (err, data) {
 									if (err) console.log(err);
 									else{
@@ -424,7 +433,7 @@ function getTimeStamp(){
 	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
 }
 
-function login(username, passwort){
+function login(username, password){
 	
 		
 }

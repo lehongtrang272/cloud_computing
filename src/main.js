@@ -152,11 +152,11 @@ var anzDownloadButton = 0;
 					var picture = document.getElementById('profilePicture');
 						pictureUpload = 1;
 						var uploadIds = pictureUploader.upload(picture, {
-							data: { "registration":1, "user": $('#uRegister').val(), "passwort": $('#pRegister').val(), "pictureUpload": pictureUpload
+							data: { "registration":1, "user": $('#uRegister').val(), "password": $('#pRegister').val(), "pictureUpload": pictureUpload
 									}
 						});
 				}else{
-					socket.emit('registration', {"user": $('#uRegister').val(), "passwort": $('#pRegister').val(), "pictureUpload": pictureUpload});
+					socket.emit('registration', {"user": $('#uRegister').val(), "password": $('#pRegister').val(), "pictureUpload": pictureUpload});
 				}
 				}
 				else{
