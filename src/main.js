@@ -11,14 +11,11 @@ $(document).ready(function(){
 		});
 
 var user ='';
-var mood = '';
 var anzDownloadButton = 0;
         $(function() {
 			
 			
 			var socket = io();
-
-			$("#logoutbutton").addClass("hidden");
 			
 			//Handle File Upload
 			
@@ -313,13 +310,12 @@ var anzDownloadButton = 0;
    }
    
 
-   function appendChatMessage(timeStamp, sender, message, type, mood){
+   function appendChatMessage(timeStamp, sender, message, type){
 		className = type;
 		if(type.includes("mediaFile")) {
-			$('#messages').append($('<li class="'+className + ' ' + mood+'">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
+			$('#messages').append($('<li class="'+className + ' ' + '">').append($('<button id="mediaFileButton" class="mediaButton" value="'+message+'">').text(message)));
 		}else {
-			$('#messages').append($('<li class="'+className+' '+ mood + '">').text(timeStamp + " " + sender + " " + message));
-			mood="neutral";
+			$('#messages').append($('<li class="'+className+' '+ '">').text(timeStamp + " " + sender + " " + message));
 		}
 		var div = document.getElementById("m");
 		div.scrollTop = div.scrollHeight - div.clientHeight;
@@ -327,11 +323,12 @@ var anzDownloadButton = 0;
    //function handle changing state of label for upload Form
 	$(function(){
 		var input = $('.inputFile' );
-		var label	 = $(input).next(),
-			labelVal = $(label).html();
+		
 
 		$(input).on( 'change', function( e )
 			{
+			var label= $(this).next(),
+			labelVal = $(label).html();
 			var fileName = '';
 			if( this.files && this.files.length > 1 ){
 				fileName = ( this.getAttribute( 'data-multiple-caption' ) || '' ).replace( '{count}', this.files.length );
