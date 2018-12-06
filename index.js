@@ -112,7 +112,7 @@ io.on('connection', function(socket){
 
 					
 					//Password is correct
-					if(bcrypt.compare(msg.password,data[0]['PASSWORT'],function(err, res){
+					if(bcrypt.compareSync(msg.password,data[0]['PASSWORT'],function(err, res){
 						if(err){
 							console.log(err)
 							}
@@ -175,17 +175,18 @@ io.on('connection', function(socket){
 				if(data.length==0){
 					//Check Password strength
 					//TODO check numbers and symbols
-					var hashedpw = bcrypt.hash(msg.password,10, function(err,hash){
-						console.log(err);
-					});
-					console.log(hashedpw);
+					
 				//console.log("pictureUpload: "+msg.pictureUpload);
 				console.log("Bool Picturehasfaces: "+pictureHasFace);
 					if(pictureHasFace){
 						
 						if(msg.password.length >7){
 								//createHashSalt
-								
+								var salt = bcrypt.genSaltSync(10);
+								var hashedpw = bcrypt.hashSync(msg.password,salt, function(err,hash){
+									console.log(err);
+								});
+								console.log(hashedpw);
 								//TODO: store hash in password DB 
 								//console.log(hashedpw + msg.password);
 								conn.query("insert into MDS89277.loginData (username, passwort, profilePicture)values('"+newUser+"', '"+hashedpw+"', '"+newUser+".jpg')", function (err, data) {
