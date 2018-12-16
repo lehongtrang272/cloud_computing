@@ -244,10 +244,11 @@ socket.on('onLogin', (msg)=>{
 			if (err) return console.log(err);
 			conn.query("UPDATE MDS89277.loginData SET Online=false where username ='"+socket.user+"'", function (err, data) {
 							if (err) console.log(err);});
-	  });
-	  conn.close(function () {
+		conn.close(function () {
 			console.log('done');
-			});
+			});					
+	  });
+	  
 	  socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
    
@@ -373,10 +374,12 @@ socket.on('onLogin', (msg)=>{
 							}
 							io.sockets.emit('get userlist',{"userlist":UserList})
 	  }); 
-	 });
+	  
 	 conn.close(function () {
 			console.log('done');
 			});
+	  
+	 });
 }
    
    
