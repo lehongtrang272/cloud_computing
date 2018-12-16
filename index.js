@@ -19,16 +19,6 @@ var compress_images = require('compress-images')
 const cluster = require('cluster')
 const os = require('os')	
 
-if (false && cluster.isMaster) {
-    const cpuCount = os.cpus().length
-    for (let i = 0; i < cpuCount; i++) {
-        cluster.fork()
-    }
-	console.log("Master");
-}
-else {
-
-
 //security setting for hsts, x-xxs & not to sniff MIME type
 const hundredEightyDaysInSeconds = 15552000 
 app.use(helmet());
@@ -74,62 +64,45 @@ app.get('/socket.io-file-client.js', (req, res, next) => {
 app.use(express.static('data'));
 app.use(express.static(path.join(__dirname, 'src')));
 app.use(express.static(path.join(__dirname, 'profilePicture')));
-/*app.use(function(req,res,next){
-	if(req.secure || process.env.BLUEMIX_REGION === undefined){
-		next();
-	} else {
-		console.log('redirect to secured connection');
-		res.redirect('https://'+req.headers.host + req.url);
-	}
-})
-*/
 //Routing to src folder
 
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
-var UserList = [];
-var MessageList=[];
-var Connections=[];
+//var UserList = [];
 var registrationPicture = false;
 var picturePath = '';
 var pictureHasFace = false;
 var visualRecognitionDone = false;
 io.on('connection', function(socket){
-	//console.log(cluster.worker.process.pid);
-	//When a users sets his username, the name is safed to a list and ever online user is notified
-	socket.on('onLogin', (msg)=>{
+	//When a users wants to login to the chat
+socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
 			console.log("db_connected");
-			conn.query("select username, passwort, profilePicture from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
+			conn.query("select username, passwort, profilePicture, Online from MDS89277.loginData where username ='"+newUser+"'", function (err, data) {
 			if (err) console.log(err);
 			else { 
 				//When the user exists
 				if(data.length==1){
 
-					
 					//Password is correct
 					if(bcrypt.compareSync(msg.password,data[0]['PASSWORT'],function(err, res){
 						if(err){
 							console.log(err)
 							}
 						})){
-						if(UserList.indexOf(newUser)<0){
-							console.log(data[0]['PROFILEPICTURE']);
-							//UserList.push(newUser);
-							UserList.push({'user': newUser, 'profilePicture': data[0]['PROFILEPICTURE']});
-							Connections.push(socket);
+						if(!data[0]['ONLINE']){
+							socket.user = newUser;
+							conn.query("UPDATE MDS89277.loginData SET Online=true where username ='"+newUser+"'", function (err, data) {
+							if (err) console.log(err);});
 							updateUsernames();
-							//message back to the User
-							for(message in MessageList){
-								socket.emit('chat message', MessageList[message]);
-							}
 							socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 							//broadcast message to all other users
 							socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
+						
 						}else{
 							socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already online'});
 						}
@@ -184,11 +157,11 @@ io.on('connection', function(socket){
 								//createHashSalt
 								var salt = bcrypt.genSaltSync(8);
 								var hashedpw = bcrypt.hashSync(msg.password,salt);
-								console.log(hashedpw);
+								console.log("Hashpw: "+hashedpw);
 								//TODO: store hash in password DB 
 								//console.log(hashedpw + msg.password);
 								conn.query("insert into MDS89277.loginData (username, passwort, profilePicture)values('"+newUser+"', '"+hashedpw+"', '"+newUser+".jpg')", function (err, data) {
-									if (err) console.log(err);
+									if (err) console.log("DB_Error: "+err);
 									else{
 											
 										compress_images(picturePath, __dirname+'/profilePicture/', {compress_force: false, statistic: true, autoupdate: true}, false,
@@ -240,11 +213,6 @@ io.on('connection', function(socket){
 	
   });
 
-  //obsolete, userlist request of one client with /list
-  socket.on('get userlist', function(data){
-	  console.log("getUserList");
-	socket.emit('get userlist',{"userlist":UserList});
-  });
 
   //Handle private message, sends one message back and one to the receiver
   socket.on('private message',function(data){
@@ -270,9 +238,12 @@ io.on('connection', function(socket){
   });
   //on disconnect the user is deleted from the userlist and the socketlist and the online Users get the updatet userlist
   socket.on('disconnect', function () {
-	  UserList.splice( UserList.indexOf(socket.user), 1 );
-	  Connections.splice( UserList.indexOf(socket), 1 );
-	  updateUsernames();
+	  updateUsernames(); 
+	  ibmdb.open(connectionStr, function (err,conn) {
+			if (err) return console.log(err);
+			conn.query("UPDATE MDS89277.loginData SET Online=false where username ='"+socket.user+"'", function (err, data) {
+							if (err) console.log(err);});
+	  });
 	  socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
    
@@ -388,17 +359,23 @@ io.on('connection', function(socket){
 	 
  //Send onlineUsers to all Clients
   function updateUsernames(){
-	io.sockets.emit('get userlist',{"userlist":UserList})
+	 ibmdb.open(connectionStr, function (err,conn) {
+			if (err) return console.log(err);
+			conn.query("SELECT * FROM MDS89277.loginData WHERE Online = true", function (err, data) {
+							if (err) console.log(err);
+							var UserList = [];
+							for(var i = 0; i < data.length; i++){
+								UserList.push({'user': data[i]['USERNAME'], 'profilePicture': data[i]['PROFILEPICTURE']});
+							}
+							io.sockets.emit('get userlist',{"userlist":UserList})
+	  }); 
+	 });
 }
    
    
 });
-}
 
-cluster.on('exit', (worker) => {
-    console.log('mayday! mayday! worker', worker.id, ' is no more!')
-    cluster.fork()
-})
+
 
 /**
  * Parse a base 64 image and return the extension and buffer
