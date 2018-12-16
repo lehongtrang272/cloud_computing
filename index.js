@@ -75,6 +75,7 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redi
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 //var UserList = [];
+/*
 var registrationPicture = false;
 var picturePath = '';
 var pictureHasFace = false;
@@ -84,7 +85,7 @@ io.on('connection', function(socket){
 socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
 		socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
-				/*
+				
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
 			console.log("db_connected");
@@ -131,7 +132,7 @@ socket.on('onLogin', (msg)=>{
 			
 			}); 
 			});
-*/
+
 		
   }); 
   
@@ -393,6 +394,7 @@ socket.on('onLogin', (msg)=>{
 });
 
 
+*/
 
 /**
  * Parse a base 64 image and return the extension and buffer
