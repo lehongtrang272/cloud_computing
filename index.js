@@ -30,8 +30,12 @@ var port = process.env.PORT || 3000;
 	http.listen(port, function(){
 	  console.log('listening on *: '+port);
 	});
-
-
+if(process.env.VCAP_APPLICATION){
+  var vcapApp = JSON.parse(process.env.VCAP_APPLICATION);
+      var logPrefix= vcapApp.application_name + vcapApp.instance_index;
+	   console.log(logPrefix + ' is up and running !');
+ 
+}
  
 var connectionStr = "DATABASE=BLUDB;"+
 			"HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;"+
