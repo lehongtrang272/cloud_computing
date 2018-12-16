@@ -83,6 +83,8 @@ io.on('connection', function(socket){
 	//When a users wants to login to the chat
 socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
+		socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
+				/*
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
 			console.log("db_connected");
@@ -126,9 +128,10 @@ socket.on('onLogin', (msg)=>{
 			conn.close(function () {
 			console.log('done');
 			});
+			
 			}); 
 			});
-
+*/
 		
   }); 
   

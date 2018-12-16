@@ -2,6 +2,6 @@ applications:
  - name: hannahtrangfellixx
    host: hannahtrangfellixx
    memory: 512M
-   instances: 4
+   instances: 2
    services:
     - Db2-h5
