@@ -35,7 +35,7 @@ var credentials;
 	  console.log('1111111111111111111111111111111111111111111111111111111111111111111');
 	 console.log(process.env.VCAP_SERVICES);
 	 console.log('222222222222222222222222222222222222222222222222222222222222222222222');
-	  console.log(process.env.VCAP_SERVICES['Redis-for-chat-server'][0].credentials);
+	  console.log(JSON.stringify(process.env.VCAP_SERVICES));
 	   console.log('333333333333333333333333333333333333333333333333333333333333333333333333');
 /* 	
 var env = JSON.parse(process.env.VCAP_SERVICES);
