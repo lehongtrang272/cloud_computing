@@ -28,16 +28,16 @@ app.use(bodyParser.urlencoded({
 }));
 
 var redis = require('redis');
+
 var credentials;
  // Check if we are in Bluemix or localhost
  if(process.env.VCAP_SERVICES) {
-	var env = JSON.parse(process.env.VCAP_SERVICES);
-    var credentials = env['redis'][0].credentials;
- }  
- 
- 
- 
- else {
+	 console.log(process.env.VCAP_SERVICES);
+/* 	
+var env = JSON.parse(process.env.VCAP_SERVICES);
+credentials = env['redis'][0].credentials;
+ */	
+ } else {
  // On localhost just hardcode the connection details
  credentials = { "host": "127.0.0.1", "port": 6379 }
  }
@@ -296,9 +296,10 @@ socket.on('onLogin', (msg)=>{
 	
 	//Send a chat Message to all Clients and save the Message in an Array
   socket.on('chat message', function(msg){
+	/*   
 	 redisClient.lpush('messages', JSON.stringify(msg));
 	redisClient.ltrim('messages', 0, 99);
- 
+  */
 	timeStamp = getTimeStamp();
     io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "chatMessage"});
 	console.log(msg.message);
