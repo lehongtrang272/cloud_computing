@@ -39,8 +39,12 @@ var credentials;
 	   console.log('333333333333333333333333333333333333333333333333333333333333333333333333');
 	
 var env = JSON.parse(process.env.VCAP_SERVICES);
-credentials = env['redis'][0].credentials;
+credentials = env['compose-for-redis'][0].credentials;
 
+ console.log(JSON.parse(env['compose-for-redis'][0]));
+	   console.log('4444444444444444444444444444444444');
+	    console.log(env['compose-for-redis'][0].credentials);
+	   console.log('5555555555555555555555555555555555555555555555555555555');
  } else {
  // On localhost just hardcode the connection details
  credentials = { "host": "127.0.0.1", "port": 6379 }
