@@ -22,6 +22,10 @@ var cfenv = require("cfenv");
 var cookieParser = require('cookie-parser');
 const uuid = require('uuid/v4')
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 var redis = require('redis');
 var credentials;
