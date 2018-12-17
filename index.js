@@ -3,53 +3,14 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-const assert = require('assert');
-const util = require('util')
 var path = require('path');
-const SocketIOFile = require('socket.io-file');
-var fs = require('fs');
-var ibmdb = require('ibm_db');
-const helmet = require('helmet');
-//const bcrypt = require('bcrypt');
-var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
-var bcrypt = require("bcryptjs"); 
-var waitUntil = require('wait-until');
-var compress_images = require('compress-images')
- 
-const cluster = require('cluster')
-const os = require('os')	
 
-//security setting for hsts, x-xxs & not to sniff MIME type
-const hundredEightyDaysInSeconds = 15552000 
-app.use(helmet());
-app.use(helmet.hsts({
-  maxAge: hundredEightyDaysInSeconds
-})) 
 
 var port = process.env.PORT || 3000;
 	http.listen(port, function(){
 	  console.log('listening on *: '+port);
 	});
-if(process.env.VCAP_APPLICATION){
-  var vcapApp = JSON.parse(process.env.VCAP_APPLICATION);
-      var logPrefix= vcapApp.application_name + vcapApp.instance_index;
-	   console.log(logPrefix + ' is up and running !');
- 
-}
- 
-var connectionStr = "DATABASE=BLUDB;"+
-			"HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;"+
-			"UID=mds89277;"+
-			"PWD=fs^tlg7qrv4z236d;"+
-			"PORT=50000"; 
- 
-var visualRecognition = new VisualRecognitionV3({
-	version: '2018-03-19',
-	iam_apikey: 'VLgTIgrFOnXC3MxqFS08yPDOAW0l_I0qQIImOFc2nNNY',
-	url: 'https://gateway.watsonplatform.net/visual-recognition/api'
-});	
-
-
+	
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/src/index.html');
 });
@@ -395,44 +356,3 @@ socket.on('onLogin', (msg)=>{
 
 
 */
-
-/**
- * Parse a base 64 image and return the extension and buffer
- * @param  {String} imageString The image data as base65 string
- * @return {Object}             { type: String, data: Buffer }
- */
-function parseBase64Image(imageString) {
-	var matches = imageString.match(/^data:image\/([A-Za-z-+/]+);base64,(.+)$/);
-	var resource = {};
-  
-	if (matches.length !== 3) {
-	  return null;
-	}
-  
-	resource.type = matches[1] === 'jpeg' ? 'jpg' : matches[1];
-	resource.data = new Buffer(matches[2], 'base64');
-	return resource;
-  }
-
-function requireHTTPS(req,res,next){
-	if( req.headers && req.headers.$wssp === "80"){
-		return res.redirect('https://'+ req.get('host')+req.url);
-	}
-	next();
-}
-
-
-//Returns the current Timestampt as String
-function getTimeStamp(){
-	var date = new Date();
-	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-}
-
-function login(username, password){
-	
-		
-}
-
-function sleep(millis) {
-    return new Promise(resolve => setTimeout(resolve, millis));
-}
