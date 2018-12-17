@@ -32,11 +32,11 @@ var redis = require('redis');
 var credentials;
  // Check if we are in Bluemix or localhost
  if(process.env.VCAP_SERVICES) {
-	  console.log('###############################################################');
+	  console.log('1111111111111111111111111111111111111111111111111111111111111111111');
 	 console.log(process.env.VCAP_SERVICES);
-	 console.log('###############################################################');
-	  console.log(process.env.VCAP_SERVICES['redis'][0].credentials);
-	   console.log('###############################################################');
+	 console.log('222222222222222222222222222222222222222222222222222222222222222222222');
+	  console.log(process.env.VCAP_SERVICES['Redis-for-chat-server'][0].credentials);
+	   console.log('333333333333333333333333333333333333333333333333333333333333333333333333');
 /* 	
 var env = JSON.parse(process.env.VCAP_SERVICES);
 credentials = env['redis'][0].credentials;
