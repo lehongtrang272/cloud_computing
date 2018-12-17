@@ -35,12 +35,11 @@ var credentials;
 	  console.log('1111111111111111111111111111111111111111111111111111111111111111111');
 	 console.log(process.env.VCAP_SERVICES);
 	 console.log('222222222222222222222222222222222222222222222222222222222222222222222');
-	  console.log(JSON.stringify(process.env.VCAP_SERVICES));
+	  console.log(JSON.parse(process.env.VCAP_SERVICES));
 	   console.log('333333333333333333333333333333333333333333333333333333333333333333333333');
-	    console.log(JSON.stringify(process.env.VCAP_SERVICES['compose-for-redis']));
 	
 var env = JSON.parse(process.env.VCAP_SERVICES);
-credentials = env['compose-for-redis'][0].credentials;
+credentials = env['redis'][0].credentials;
 
  } else {
  // On localhost just hardcode the connection details
