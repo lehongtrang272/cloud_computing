@@ -3,16 +3,130 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const assert = require('assert');
+const util = require('util')
 var path = require('path');
+const SocketIOFile = require('socket.io-file');
+var fs = require('fs');
+var ibmdb = require('ibm_db');
+const helmet = require('helmet');
+//const bcrypt = require('bcrypt');
+var VisualRecognitionV3 = require('watson-developer-cloud/visual-recognition/v3');
+var bcrypt = require("bcryptjs"); 
+var waitUntil = require('wait-until');
+var compress_images = require('compress-images')
+var session = require('express-session');
+var CloudantStore = require('connect-cloudant-store')(session);
+var cfenv = require("cfenv");
+ var Cloudant = require('@cloudant/cloudant');
+var cookieParser = require('cookie-parser');
+const uuid = require('uuid/v4')
 
+
+var redis = require('redis');
+ var credentials;
+ // Check if we are in Bluemix or localhost
+ if(process.env.VCAP_SERVICES) {
+	 // On Bluemix read connection settings from
+	 // VCAP_SERVICES environment variable
+	 var env = JSON.parse(process.env.VCAP_SERVICES);
+	 credentials = env['redis-2.6'][0]['credentials'];
+ } else {
+ // On localhost just hardcode the connection details
+ credentials = { "host": "127.0.0.1", "port": 6379 }
+ }
+	 // Connect to Redis
+	 var redisClient = redis.createClient(credentials.port, credentials.host);
+	 if('password' in credentials) {
+	 // On Bluemix we need to authenticate against Redis
+	 redisClient.auth(credentials.password);
+ }
+
+/*  var redis   = require("redis");
+ var RedisStore = require('connect-redis')(session);
+ 
+var redisClient = redis.createClient("rediss://bmix-dal-yp-7f678173-a1cd-44c5-ad1f-bd3628be382a.1738176530.composedb.com:18589");
+var options={ host: 'https://composebroker-dashboard-public.mybluemix.net/api', port: 18589, client: redisClient,ttl :  260} 
+
+app.use(cookieParser()); */
+ 
+ 
+ var store = new CloudantStore(
+    {	
+		database: 'chatserver',
+        url: "https://fdb37926-4090-457e-9447-caacd6701d06-bluemix:00ecdb277dce5c283168cea9f0b0fdc790d52208b9e15194981432045905fc1d@fdb37926-4090-457e-9447-caacd6701d06-bluemix.cloudantnosqldb.appdomain.cloud"
+    }
+);
+/* 
+app.use(session({
+   store: store,
+	genid: (req) => {
+		console.log('Inside the session middleware')
+		console.log(req.sessionID)
+		return uuid() // use UUIDs for session IDs
+	  },
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+}));
+
+
+
+
+ console.log("#########################################################");
+console.log("#########################################################");
+ console.log(session); 
+ console.log("#########################################################");
+ console.log("#########################################################");
+ console.log(store);
+store.on('connect', function() {
+	
+     console.log("connected to cloudant");
+	 console.log(store.client.use('chatserver').insert({ happy: false }, 'rabbit2'));
+
+});  */
+
+
+
+
+//security setting for hsts, x-xxs & not to sniff MIME type
+const hundredEightyDaysInSeconds = 15552000 
+app.use(helmet());
+app.use(helmet.hsts({
+  maxAge: hundredEightyDaysInSeconds
+})) 
 
 var port = process.env.PORT || 3000;
 	http.listen(port, function(){
 	  console.log('listening on *: '+port);
 	});
-	
+if(process.env.VCAP_APPLICATION){
+  var vcapApp = JSON.parse(process.env.VCAP_APPLICATION);
+      var logPrefix= vcapApp.application_name + vcapApp.instance_index;
+	   console.log(logPrefix + ' is up and running !');
+ 
+}
+ 
+var connectionStr = "DATABASE=BLUDB;"+
+			"HOSTNAME=dashdb-txn-sbox-yp-dal09-04.services.dal.bluemix.net;"+
+			"UID=mds89277;"+
+			"PWD=fs^tlg7qrv4z236d;"+
+			"PORT=50000"; 
+			
+
+
+ 
+ 
+var visualRecognition = new VisualRecognitionV3({
+	version: '2018-03-19',
+	iam_apikey: 'VLgTIgrFOnXC3MxqFS08yPDOAW0l_I0qQIImOFc2nNNY',
+	url: 'https://gateway.watsonplatform.net/visual-recognition/api'
+});	
+
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/src/index.html');
+  
 });
 
 app.get('/socket.io.js', (req, res, next) => {
@@ -36,7 +150,7 @@ app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redi
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
 //var UserList = [];
-/*
+
 var registrationPicture = false;
 var picturePath = '';
 var pictureHasFace = false;
@@ -176,9 +290,11 @@ socket.on('onLogin', (msg)=>{
 	
 	//Send a chat Message to all Clients and save the Message in an Array
   socket.on('chat message', function(msg){
+	 redisClient.lpush('messages', JSON.stringify(msg));
+	redisClient.ltrim('messages', 0, 99);
+ 
 	timeStamp = getTimeStamp();
     io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "chatMessage"});
-	MessageList.push({"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "oldMessage"});
 	console.log(msg.message);
 	
   });
@@ -355,4 +471,42 @@ socket.on('onLogin', (msg)=>{
 });
 
 
-*/
+
+
+/**
+ * Parse a base 64 image and return the extension and buffer
+ * @param  {String} imageString The image data as base65 string
+ * @return {Object}             { type: String, data: Buffer }
+ */
+function parseBase64Image(imageString) {
+	var matches = imageString.match(/^data:image\/([A-Za-z-+/]+);base64,(.+)$/);
+	var resource = {};
+  
+	if (matches.length !== 3) {
+	  return null;
+	}
+  
+	resource.type = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+	resource.data = new Buffer(matches[2], 'base64');
+	return resource;
+  }
+
+function requireHTTPS(req,res,next){
+	if( req.headers && req.headers.$wssp === "80"){
+		return res.redirect('https://'+ req.get('host')+req.url);
+	}
+	next();
+}
+
+
+//Returns the current Timestampt as String
+function getTimeStamp(){
+	var date = new Date();
+	return date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+}
+
+
+
+function sleep(millis) {
+    return new Promise(resolve => setTimeout(resolve, millis));
+}
