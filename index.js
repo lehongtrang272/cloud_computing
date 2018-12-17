@@ -24,14 +24,16 @@ const uuid = require('uuid/v4')
 
 
 var redis = require('redis');
- var credentials;
+var credentials;
  // Check if we are in Bluemix or localhost
  if(process.env.VCAP_SERVICES) {
-	 // On Bluemix read connection settings from
-	 // VCAP_SERVICES environment variable
-	 var env = JSON.parse(process.env.VCAP_SERVICES);
-	 credentials = env['redis-2.8'][0]['credentials'];
- } else {
+	var env = JSON.parse(process.env.VCAP_SERVICES);
+    var credentials = env['redis'][0].credentials;
+ }  
+ 
+ 
+ 
+ else {
  // On localhost just hardcode the connection details
  credentials = { "host": "127.0.0.1", "port": 6379 }
  }
