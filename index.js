@@ -130,15 +130,38 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 receiveClient.subscribe('sendMessage');
 receiveClient.subscribe('userLogin');
 receiveClient.subscribe('userLogout');
-
+receiveClient.subscribe('privateMessage');
 
 receiveClient.on("message", (channel, message) => {
 	console.log("Message received: "+message);
+	var event = '';
 	 var  i = 0;
+	 switch(channel) {
+	case 'sendMessage':
+    event = 'chat message';
+    break;
+	case 'userLogin':
+    event = 'chat message';
+    break;
+	  case 'userLogout':
+    event = 'chat message';
+    break;
+	case 'privateMessage':
+	event = 'private message'
+	default:
+    break;
+}
 	  SocketList.forEach(socket => {
-					console.log("socket"+i);
-					i++;
-                    socket.emit("chat message", JSON.parse(message) );
+					if(event != 'private message'){
+						socket.emit(event, JSON.parse(message) );
+					}else{
+						var jsonmessage = JSON.parse(message);
+						if(jsonmessage.receiver == socket.user){
+						console.log("private Message");
+							socket.emit(event, JSON.parse(message) );
+						}
+					}
+					
 	  });
 });
 
@@ -158,7 +181,6 @@ io.on('connection', function(socket){
 	//When a users wants to login to the chat
 socket.on('onLogin', (msg)=>{
 		var newUser = msg.user
-		socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 				
 		ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -184,7 +206,9 @@ socket.on('onLogin', (msg)=>{
 							updateUsernames();
 							socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 							//broadcast message to all other users
-							socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
+							var message = {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"};
+							redisClient.publish("userLogin", JSON.stringify(message));
+							//socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(), "user": "server", "message": newUser+" connected", "type":"serverMessage"});
 						
 						}else{
 							socket.emit('onLoginFailure', {"message": 'Username '+newUser+ ' is  already online'});
@@ -309,30 +333,37 @@ socket.on('onLogin', (msg)=>{
 	  console.log("private Message");
 	  var userExists = false;
 	  var toSocket;
-	  for (i=0; i<Connections.length;i++){
-		   console.log(Connections[i].user+"connection.user");
+	  for (i=0; i<SocketList.length;i++){
+		   console.log(SocketList[i].user+"connection.user");
 		   console.log(data.user+"data.user");
-		  if (data.user==Connections[i].user){
-			  toSocket = Connections[i];
+		  if (data.user==SocketList[i].user){
+			  toSocket = SocketList[i];
 				userExists = true
 		  }
 	  }
 	  if(userExists){
-		  console.log(Connections[i]+data.message+socket.user);
+		  console.log(SocketList[i]+data.message+socket.user);
 		socket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()});
-		toSocket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()});
+		var message = {"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()};
+		//toSocket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":1,"timestamp":getTimeStamp()});
 	  }
 	  else{
-		  socket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":0,"timestamp":getTimeStamp()});
+		  var message = {"message":data.message, "sender":socket.user, "receiver":data.user,"success":0,"timestamp":getTimeStamp()};
+		  //socket.emit('private message',{"message":data.message, "sender":socket.user, "receiver":data.user,"success":0,"timestamp":getTimeStamp()});
 	  }
+	  redisClient.publish("privateMessage", JSON.stringify(message));
   });
   //on disconnect the user is deleted from the userlist and the socketlist and the online Users get the updatet userlist
   socket.on('disconnect', function () {
-	  SocketList.forEach (ssocket => {
+/* 	  SocketList.forEach (ssocket => {
                     console.log(ssocket.id);
-                    }); 
+                    });  */
 	  
-	SocketList.splice( SocketList.indexOf(socket), 1 );
+	for(var i = 0; i < SocketList.length;i++){
+		if(SocketList[i].id == socket.id){
+			SocketList.splice(i,1);
+		}
+	}
 	  updateUsernames(); 
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
@@ -342,8 +373,9 @@ socket.on('onLogin', (msg)=>{
 			console.log('done');
 			});					
 	  });
-	  
-	  socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
+	  var message = {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"};
+	  redisClient.publish("userLogout", JSON.stringify(message));
+	  //socket.broadcast.emit('chat message', {"timeStamp": getTimeStamp(),"user":"server", "message": socket.user+" disconnected", "type":"serverMessage"});
    });
    
    var uploader = new SocketIOFile(socket, {
