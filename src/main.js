@@ -218,7 +218,9 @@ var anzDownloadButton = 0;
 			
 			//receive chat message
             socket.on('chat message', function(msg){
+				console.log(msg);
 				var type = msg.type;
+				console.log(type);
 				if(msg.user === user){
 					type = "ownMessage";
 					if(msg.type == "mediaFile"){

@@ -20,7 +20,8 @@ var CloudantStore = require('connect-cloudant-store')(session);
 var cfenv = require("cfenv");
  var Cloudant = require('@cloudant/cloudant');
 var cookieParser = require('cookie-parser');
-const uuid = require('uuid/v4')
+var { URL } = require("url");
+var uuid = require('uuid/v4')
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
@@ -29,78 +30,40 @@ app.use(bodyParser.urlencoded({
 
 var redis = require('redis');
 
-var credentials;
- // Check if we are in Bluemix or localhost
- if(process.env.VCAP_SERVICES) {
-	  console.log('1111111111111111111111111111111111111111111111111111111111111111111');
-	 console.log(process.env.VCAP_SERVICES);
-	 console.log('222222222222222222222222222222222222222222222222222222222222222222222');
-	  console.log(JSON.parse(process.env.VCAP_SERVICES));
-	   console.log('333333333333333333333333333333333333333333333333333333333333333333333333');
-	
-var env = JSON.parse(process.env.VCAP_SERVICES);
-credentials = env['compose-for-redis'][0].credentials;
-
- console.log(JSON.parse(env['compose-for-redis'][0]));
-	   console.log('4444444444444444444444444444444444');
-	    console.log(env['compose-for-redis'][0].credentials);
-	   console.log('5555555555555555555555555555555555555555555555555555555');
- } else {
- // On localhost just hardcode the connection details
- credentials = { "host": "127.0.0.1", "port": 6379 }
- }
-	 // Connect to Redis
-	 var redisClient = redis.createClient(credentials.port, credentials.host);
-	 if('password' in credentials) {
-	 // On Bluemix we need to authenticate against Redis
-	 redisClient.auth(credentials.password);
- }
-
-/*  var redis   = require("redis");
- var RedisStore = require('connect-redis')(session);
+ var store = require('connect-redis')(session);
  
-var redisClient = redis.createClient("rediss://bmix-dal-yp-7f678173-a1cd-44c5-ad1f-bd3628be382a.1738176530.composedb.com:18589");
-var options={ host: 'https://composebroker-dashboard-public.mybluemix.net/api', port: 18589, client: redisClient,ttl :  260} 
+ var redisConnectinString ="rediss://admin:BXOBXGNIJUHONCZF@portal607-47.bmix-dal-yp-7f678173-a1cd-44c5-ad1f-bd3628be382a.1738176530.composedb.com:18589";
 
-app.use(cookieParser()); */
+var sendClient = redis.createClient(redisConnectinString, {
+    tls: { servername: new URL(redisConnectinString).hostname }
+});  
+
+
+var receiveClient = redis.createClient(redisConnectinString, {
+    tls: { servername: new URL(redisConnectinString).hostname }
+});  
+
+var redisClient = redis.createClient(redisConnectinString, {
+    tls: { servername: new URL(redisConnectinString).hostname }
+}); 
+
+
+ var sessionStore = new store({ client: redisClient });
+app.use(cookieParser()); 
  
  
- var store = new CloudantStore(
-    {	
-		database: 'chatserver',
-        url: "https://fdb37926-4090-457e-9447-caacd6701d06-bluemix:00ecdb277dce5c283168cea9f0b0fdc790d52208b9e15194981432045905fc1d@fdb37926-4090-457e-9447-caacd6701d06-bluemix.cloudantnosqldb.appdomain.cloud"
-    }
-);
-/* 
+
+
 app.use(session({
-   store: store,
-	genid: (req) => {
-		console.log('Inside the session middleware')
-		console.log(req.sessionID)
-		return uuid() // use UUIDs for session IDs
-	  },
+   store: sessionStore,
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: false
-}));
+})); 
 
-
-
-
- console.log("#########################################################");
-console.log("#########################################################");
- console.log(session); 
- console.log("#########################################################");
- console.log("#########################################################");
- console.log(store);
-store.on('connect', function() {
-	
-     console.log("connected to cloudant");
-	 console.log(store.client.use('chatserver').insert({ happy: false }, 'rabbit2'));
-
-});  */
-
-
+redisClient.on('connect', function(){
+  console.log('Connected to Redis...');
+});
 
 
 //security setting for hsts, x-xxs & not to sniff MIME type
@@ -163,8 +126,30 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); /
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootstrap
 
-//var UserList = [];
 
+receiveClient.subscribe('sendMessage');
+receiveClient.subscribe('userLogin');
+receiveClient.subscribe('userLogout');
+
+
+receiveClient.on("message", (channel, message) => {
+	console.log("Message received: "+message);
+	 var  i = 0;
+	  SocketList.forEach(socket => {
+					console.log("socket"+i);
+					i++;
+                    socket.emit("chat message", JSON.parse(message) );
+	  });
+});
+
+
+
+
+
+
+
+var UserList = [];
+var SocketList=[];
 var registrationPicture = false;
 var picturePath = '';
 var pictureHasFace = false;
@@ -190,10 +175,12 @@ socket.on('onLogin', (msg)=>{
 							console.log(err)
 							}
 						})){
-						if(!data[0]['ONLINE']){
+						if(true || !data[0]['ONLINE']){
 							socket.user = newUser;
 							conn.query("UPDATE MDS89277.loginData SET Online=true where username ='"+newUser+"'", function (err, data) {
 							if (err) console.log(err);});
+							SocketList.push(socket);
+							console.log('Socketlist '+SocketList);
 							updateUsernames();
 							socket.emit('onLoginSuccess', {"message": 'Welcome to the chat', "user": newUser});
 							//broadcast message to all other users
@@ -216,7 +203,7 @@ socket.on('onLogin', (msg)=>{
 				}
 			}
 			conn.close(function () {
-			console.log('done');
+			
 			});
 			
 			}); 
@@ -302,15 +289,17 @@ socket.on('onLogin', (msg)=>{
   }
   
 	
-	//Send a chat Message to all Clients and save the Message in an Array
+	//Send a chat Message to all Clients 
   socket.on('chat message', function(msg){
 	/*   
 	 redisClient.lpush('messages', JSON.stringify(msg));
 	redisClient.ltrim('messages', 0, 99);
   */
 	timeStamp = getTimeStamp();
-    io.emit('chat message', {"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "chatMessage"});
+	var message ={"user": msg.user, "message": msg.message, "timeStamp": getTimeStamp(), "type": "chatMessage"};
+   
 	console.log(msg.message);
+	redisClient.publish("sendMessage", JSON.stringify(message));
 	
   });
 
@@ -339,6 +328,11 @@ socket.on('onLogin', (msg)=>{
   });
   //on disconnect the user is deleted from the userlist and the socketlist and the online Users get the updatet userlist
   socket.on('disconnect', function () {
+	  SocketList.forEach (ssocket => {
+                    console.log(ssocket.id);
+                    }); 
+	  
+	SocketList.splice( SocketList.indexOf(socket), 1 );
 	  updateUsernames(); 
 	  ibmdb.open(connectionStr, function (err,conn) {
 			if (err) return console.log(err);
